@@ -434,9 +434,12 @@ class CbasUpgrade(NewUpgradeBaseTest):
             rest = RestConnection(self.servers[len(self.servers) - 1])
             reached = RestHelper(rest).rebalance_reached(wait_step=120)
             self.assertTrue(reached, "rebalance failed, stuck or did not complete")
+        
+        self.log.info("Rebalancing the cluster")
+        self.master = extra_node
+        self.assertTrue(cluster_utils(self.master).rebalance(), "Rebalancing cluster failed")
 
         self.log.info("Verify document count")
-        self.master = extra_node
         rest = RestConnection(extra_node)
         for x in range(self.dataset_count):
             self.log.info("Validate count on CBAS")
