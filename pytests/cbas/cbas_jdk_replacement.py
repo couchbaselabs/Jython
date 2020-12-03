@@ -186,43 +186,48 @@ class CBASJdkReplacement(CBASBaseTest):
         available_jdks.remove(None)
         shuffle(available_jdks)
         times = 1
-        for jdk in available_jdks:
-            for node in self.analytics_servers:
-                if not self.input.param('use_cli', False):
-                    self.log.info("Replacing JRE using REST")
-                    self.update_jre_on_node(node, jdk)
-                else:
-                    self.log.info("Replacing JRE using CLI")
-                    shell = RemoteMachineShellConnection(node)
-                    shell.set_jre_path_cli(jdk)
-                    shell.disconnect()
-                self.sleep(message="Wait for node to restart")
-
-                self.log.info("Wait for analytics service to be up and running")
-                analytics_recovered = self.cbas_util.wait_for_cbas_to_recover()
-                self.assertTrue(analytics_recovered, msg="Analytics failed to recover")
-
-                self.log.info("Validate JRE is replaced for node {0}".format(node.ip))
-                util = cbas_utils(self.master, node)
-                diag_res = util.get_analytics_diagnostics(self.cbas_node)
-                java_home = diag_res['runtime']['systemProperties']['java.home']
-                java_runtime_name = diag_res['runtime']['systemProperties']['java.runtime.name']
-                java_runtime_version = diag_res['runtime']['systemProperties']['java.runtime.version']
-                jre_info = JAVA_RUN_TIMES[jdk]
-                self.assertTrue(jre_info['java_home'] in java_home, msg='Incorrect java home value')
-                self.assertEqual(java_runtime_name, jre_info['java_runtime_name'], msg='Incorrect java runtime name')
-                self.assertTrue(java_runtime_version.startswith(jre_info['java_runtime_version']), msg='Incorrect java runtime version')
-                util.closeConn()
-
-                self.log.info("Validate post jre replacement for node {0}".format(node.ip))
-                self.post_jre_replacement_validation(count=times)
-                times += 1
+        try:
+            for jdk in available_jdks:
+                if jdk == "jdk11":
+                    for node in self.analytics_servers:
+                        if not self.input.param('use_cli', False):
+                            self.log.info("Replacing JRE using REST")
+                            self.update_jre_on_node(node, jdk)
+                        else:
+                            self.log.info("Replacing JRE using CLI")
+                            shell = RemoteMachineShellConnection(node)
+                            shell.set_jre_path_cli(jdk)
+                            shell.disconnect()
+                        self.sleep(message="Wait for node to restart")
         
-        self.log.info("Stop ingestion on KV")
-        _STOP_INGESTION = True
-
-        self.log.info("Verify count post JDK replacements")
-        for x in range(times):
-            self.log.info("Validate count on CBAS")
-            count_n1ql = self.rest.query_tool('select count(*) from %s' % self.cb_bucket_name)['results'][0]['$1']
-            self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name + str(x), count_n1ql, num_tries=30), msg="Count mismatch on CBAS and KV")
+                        self.log.info("Wait for analytics service to be up and running")
+                        analytics_recovered = self.cbas_util.wait_for_cbas_to_recover()
+                        self.assertTrue(analytics_recovered, msg="Analytics failed to recover")
+        
+                        self.log.info("Validate JRE is replaced for node {0}".format(node.ip))
+                        util = cbas_utils(self.master, node)
+                        diag_res = util.get_analytics_diagnostics(self.cbas_node)
+                        java_home = diag_res['runtime']['systemProperties']['java.home']
+                        java_runtime_name = diag_res['runtime']['systemProperties']['java.runtime.name']
+                        java_runtime_version = diag_res['runtime']['systemProperties']['java.runtime.version']
+                        jre_info = JAVA_RUN_TIMES[jdk]
+                        self.assertTrue(jre_info['java_home'] in java_home, msg='Incorrect java home value')
+                        self.assertEqual(java_runtime_name, jre_info['java_runtime_name'], msg='Incorrect java runtime name')
+                        self.assertTrue(java_runtime_version.startswith(jre_info['java_runtime_version']), msg='Incorrect java runtime version')
+                        util.closeConn()
+        
+                        self.log.info("Validate post jre replacement for node {0}".format(node.ip))
+                        self.post_jre_replacement_validation(count=times)
+                        times += 1
+            
+            self.log.info("Stop ingestion on KV")
+            _STOP_INGESTION = True
+    
+            self.log.info("Verify count post JDK replacements")
+            for x in range(times):
+                self.log.info("Validate count on CBAS")
+                count_n1ql = self.rest.query_tool('select count(*) from %s' % self.cb_bucket_name)['results'][0]['$1']
+                self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name + str(x), count_n1ql, num_tries=30), msg="Count mismatch on CBAS and KV")
+        except Exception as e:
+            _STOP_INGESTION = True
+            self.assertTrue(False, str(e))
