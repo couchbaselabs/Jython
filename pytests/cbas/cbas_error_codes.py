@@ -554,14 +554,14 @@ class CBASError:
         },
         {
             "id": "drop_link_not_exist",
-            "msg": "Link Default.Local1 does not exist",
-            "code": 24006,
+            "msg": "Invalid link name Local1. Links starting with \"Local\" are reserved by the system",
+            "code": 24085,
             "query": "drop link Local1",
             "run_in_loop": True
         },
         {
             "id": "drop_local_link",
-            "msg": "Local link cannot be dropped",
+            "msg": "Operation cannot be performed on the Local link",
             "code": 24007,
             "query": "drop link Local",
             "run_in_loop": True

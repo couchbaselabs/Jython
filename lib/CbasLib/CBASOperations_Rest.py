@@ -58,7 +58,7 @@ class CBASHelper(RestConnection):
         elif str(header['status']) == '503':
             log.info("Request Rejected")
             raise Exception("Request Rejected")
-        elif str(header['status']) in ['500','400']:
+        elif str(header['status']) in ['500','400','401']:
             json_content = json.loads(content)
             msg = json_content['errors'][0]['msg']
             if "Job requirement" in  msg and "exceeds capacity" in msg:
