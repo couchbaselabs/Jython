@@ -3,11 +3,15 @@ import json
 from cbas.cbas_base import CBASBaseTest
 from remote.remote_util import RemoteMachineShellConnection
 from Rbac_utils.Rbac_ready_functions import rbac_utils
+from TestInput import TestInputSingleton
 
 
 class MetadataBackup(CBASBaseTest):
 
     def setUp(self):
+        self.input = TestInputSingleton.input
+        if "set_cbas_memory_from_available_free_memory" not in self.input.test_params:
+            self.input.test_params.update({"set_cbas_memory_from_available_free_memory": True})
         super(MetadataBackup, self).setUp()
         
         self.log.info('Metadata for Default dataverse')
@@ -37,10 +41,10 @@ class MetadataBackup(CBASBaseTest):
         self.cbas_util.createConn(self.beer_sample_bucket)
 
         self.log.info('Load travel-sample bucket')
-        self.load_sample_buckets(servers=[self.master], bucketName=self.travel_sample_bucket, total_items=self.travel_sample_docs_count)
+        self.load_sample_buckets(servers=[self.master], bucketName=self.travel_sample_bucket, total_items=self.travel_sample_total_docs_count)
         self.cbas_util.createConn(self.travel_sample_bucket)
 
-    def create_ds_index_and_validate_count(self, skip_ds_index_creation_default=False, skip_ds_index_creation_dv1=False, skip_ds_index_creation_dv2=False):
+    def create_ds_index_and_validate_count(self):
 
         if not self.skip_ds_index_creation_default:
             self.log.info('Create dataset on %s bucket' % (self.beer_sample_bucket))
@@ -148,7 +152,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup using cbbackupmgr with analytics disabled')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master, disable_analytics=True)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop dataset on default bucket')
         self.assertTrue(self.cbas_util.drop_dataset(self.dataset), msg='Failed to drop dataset')
@@ -174,7 +178,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop custom dataverse')
         self.cbas_util.disconnect_link(link_name=self.dataverse_1 + '.Local')
@@ -205,7 +209,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Create additional dataset on Default bucket')
         self.dataset_1_post_backup = self.dataset + "_1"
@@ -218,7 +222,7 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Again backup Analytics metadata - This will backup everything and not just newly created dataset & index')
         o = shell.create_backup(self.master, skip_configure_bkup=True)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backing up again was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backing up again was unsuccessful')
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
@@ -295,7 +299,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
@@ -329,13 +333,13 @@ class MetadataBackup(CBASBaseTest):
         if not self.skip_ds_index_creation_dv1:
             self.validate_metadata(self.dataverse_1, self.dataset_1, self.index_name_1, dataverse_count=1, dataset_count=1, index_count=1)
         else:
-            self.validate_metadata(self.dataverse_1, self.dataset_1, self.index_name_1, dataverse_count=0, dataset_count=0, index_count=0)
+            self.validate_metadata(self.dataverse_1, self.dataset_1, self.index_name_1, dataverse_count=1, dataset_count=0, index_count=0)
 
         self.log.info('Validate metadata for %s dataverse' % self.dataverse_2)
         if not self.skip_ds_index_creation_dv2:
             self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=1, dataset_count=1, index_count=1)
         else:
-            self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=0, dataset_count=0, index_count=0)
+            self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=1, dataset_count=0, index_count=0)
 
         if self.compress_dataset:
             self.assertEqual(self.cbas_util.get_ds_compression_type(self.dataset), "snappy",
@@ -353,7 +357,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master, exclude_bucket=[self.travel_sample_bucket])
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
@@ -376,7 +380,7 @@ class MetadataBackup(CBASBaseTest):
         self.validate_metadata(self.dataverse_1, self.dataset_1, self.index_name_1, dataverse_count=1, dataset_count=1, index_count=1)
 
         self.log.info('Validate metadata for %s dataverse' % self.dataverse_2)
-        self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=0, dataset_count=0, index_count=0)
+        self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=1, dataset_count=0, index_count=0)
 
     def test_analytics_multiple_bucket_backup_and_restore_using_cbbackupmgr(self):
 
@@ -386,7 +390,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master, include_buckets=[self.beer_sample_bucket, self.travel_sample_bucket])
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
@@ -419,7 +423,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
         
         for x in range(2):
             self.log.info('Restore Analytics metadata using cbbackupmgr')
@@ -487,7 +491,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master, username=user)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
@@ -519,7 +523,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Validate metadata for %s dataverse' % self.dataverse_2)
         self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=0, dataset_count=0, index_count=0)
     
-    def test_empty_dataverses_are_not_imported(self):
+    def test_empty_dataverses_are_imported(self):
 
         self.log.info('Create dataverse\'s')
         self.cbas_util.create_dataverse_on_cbas(self.dataverse_1)
@@ -528,7 +532,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
@@ -542,17 +546,17 @@ class MetadataBackup(CBASBaseTest):
         self.validate_metadata(self.dataverse, self.dataset, self.index_name, dataverse_count=1, dataset_count=0, index_count=0)
 
         self.log.info('Validate metadata for %s dataverse' % self.dataverse_1)
-        self.validate_metadata(self.dataverse_1, self.dataset_1, self.index_name_1, dataverse_count=0, dataset_count=0, index_count=0)
+        self.validate_metadata(self.dataverse_1, self.dataset_1, self.index_name_1, dataverse_count=1, dataset_count=0, index_count=0)
 
         self.log.info('Validate metadata for %s dataverse' % self.dataverse_2)
-        self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=0, dataset_count=0, index_count=0)
+        self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=1, dataset_count=0, index_count=0)
     
     def test_backup_restore_empty_analytics_metadata(self):
 
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
@@ -576,7 +580,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
@@ -594,7 +598,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
@@ -615,7 +619,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
@@ -678,7 +682,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
@@ -738,7 +742,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
-        self.assertTrue('Backup successfully completed' in ''.join(o), msg='Backup was unsuccessful')
+        self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
         
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()

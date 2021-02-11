@@ -473,6 +473,7 @@ class node_utils():
                 if service not in self.services_map.keys():
                     self.services_map[service] = []
                 self.services_map[service].append(key)
+        return self.services_map
 
     def get_nodes_services(self):
         list_nodes_services = {}
