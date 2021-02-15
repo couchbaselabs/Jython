@@ -469,9 +469,9 @@ class MetadataBackup(CBASBaseTest):
             if status == "running" and progress > 30:
                 break
         
-        self.log.info('Verify backup analytics must fail while rebalance is in progress')
+        self.log.info('Verify backup analytics must pass while rebalance is in progress')
         response = self.cbas_util.backup_cbas_metadata(bucket_name=self.beer_sample_bucket)
-        self.assertEquals(response['errors'][0]['msg'], 'Operation cannot be performed during rebalance', msg='Backup must fail during rebalance')
+        self.assertEquals(response['status'], 'success', msg='Backup must pass during rebalance')
         
         self.log.info('Verify restore analytics must fail while rebalance is in progress')
         response = self.cbas_util.restore_cbas_metadata(successful_bkup_response, bucket_name=self.beer_sample_bucket)

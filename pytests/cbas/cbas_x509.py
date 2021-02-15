@@ -187,14 +187,14 @@ class x509tests(BaseTestCase):
         if cbas_node is not None:
             self.check_analytics_service(cbas_node)
             #self.check_analytics_cluster(cbas_node)
-            self.check_analytics_cluster_diagnostics(cbas_node)
-            self.check_analytics_node_config(cbas_node)
-            self.check_analytics_node_diagnostics(cbas_node)
-            self.check_analytics_cluster_cc(cbas_node)
-            self.check_analytics_node_restart(cbas_node)
-            self.sleep(60)
-            self.check_analytics_cluster_restart(cbas_node)
-            self.sleep(60)
+            #self.check_analytics_cluster_diagnostics(cbas_node)
+            #self.check_analytics_node_config(cbas_node)
+            #self.check_analytics_node_diagnostics(cbas_node)
+            #self.check_analytics_cluster_cc(cbas_node)
+            #self.check_analytics_node_restart(cbas_node)
+            #self.sleep(60)
+            #self.check_analytics_cluster_restart(cbas_node)
+            #self.sleep(60)
         #check for kv service, test for /pools/default
         kv_node = self.get_nodes_from_services_map(service_type='kv')
         if kv_node is not None:
