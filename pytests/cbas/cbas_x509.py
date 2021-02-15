@@ -186,7 +186,7 @@ class x509tests(BaseTestCase):
         cbas_node = self.get_nodes_from_services_map(service_type='cbas')
         if cbas_node is not None:
             self.check_analytics_service(cbas_node)
-            self.check_analytics_cluster(cbas_node)
+            #self.check_analytics_cluster(cbas_node)
             self.check_analytics_cluster_diagnostics(cbas_node)
             self.check_analytics_node_config(cbas_node)
             self.check_analytics_node_diagnostics(cbas_node)

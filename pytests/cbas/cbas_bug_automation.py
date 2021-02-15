@@ -34,11 +34,10 @@ class CBASBugAutomation(CBASBaseTest):
         '''
 
         self.log.info("Load sample bucket")
-        couchbase_bucket_docs_count = self.input.param("sample_bucket_docs_count", self.travel_sample_docs_count)
         couchbase_bucket_name = self.input.param("cb_bucket_name", self.cb_bucket_name)
         result = self.load_sample_buckets(servers=list([self.master]),
                                           bucketName=couchbase_bucket_name,
-                                          total_items=couchbase_bucket_docs_count)
+                                          total_items=self.travel_sample_total_docs_count)
         self.assertTrue(result, "Failed to load sample bucket")
 
         self.log.info("Create connection")

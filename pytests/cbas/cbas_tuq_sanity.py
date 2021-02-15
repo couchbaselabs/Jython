@@ -924,6 +924,7 @@ class CBASTuqSanity(QuerySanityTests):
             
     def test_between_bigint(self):
         for bucket in self.buckets:
+            self.run_cbq_query("CREATE PRIMARY INDEX ON `default`:`{0}`".format(bucket.name))
             self.query = "SELECT name FROM {0} WHERE join_mo BETWEEN -9223372036854775808 AND 9223372036854775807 ORDER BY name".format(bucket.name)
             actual_result = self.run_cbq_query()
 
