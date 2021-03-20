@@ -5,6 +5,7 @@ from mc_bin_client import MemcachedClient, MemcachedError
 from membase.api.exception import ServerAlreadyJoinedException
 from membase.helper.rebalance_helper import RebalanceHelper
 import memcacheConstants
+from BucketLib.BucketOperations import BucketHelper
 
 import logger
 import testconstants
@@ -80,7 +81,8 @@ class ClusterOperationHelper(object):
                 log.info("ns_server @ {0}:{1} is running".format(server.ip, server.port))
             elif wait_if_warmup:
                 # wait when warmup completed
-                buckets = rest.get_buckets()
+                bucket_helper = BucketHelper(server)
+                buckets = bucket_helper.get_buckets()
                 for bucket in buckets:
                     testcase.assertTrue(ClusterOperationHelper._wait_warmup_completed(testcase, \
                                 [server], bucket.name, wait_time), "warmup was not completed!")

@@ -2,10 +2,14 @@ from cbas_base import *
 from threading import Thread
 import threading
 from Rbac_utils.Rbac_ready_functions import rbac_utils
+from TestInput import TestInputSingleton
 
 
 class CBASConcurrentQueryMgtTests(CBASBaseTest):
     def setUp(self):
+        self.input = TestInputSingleton.input
+        if "set_cbas_memory_from_available_free_memory" not in self.input.test_params:
+            self.input.test_params.update({"set_cbas_memory_from_available_free_memory": True})
         super(CBASConcurrentQueryMgtTests, self).setUp()
         self.validate_error = False
         if self.expected_error:
