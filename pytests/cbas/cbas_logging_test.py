@@ -29,11 +29,12 @@ class CbasLogging(CBASBaseTest):
         super(CbasLogging, self).setUp()
 
         # Dictionary containing the default logging configuration that we set and verify if they are set
-        CbasLogging.DEFAULT_LOGGER_CONFIG_DICT = {"org.apache.asterix": "INFO",
+        CbasLogging.DEFAULT_LOGGER_CONFIG_DICT = {
                                                   "DcpIngestionFailureLogger": "WARN",
-                                                  "com.couchbase.client.dcp.conductor.DcpChannel": "WARN",
+                                                  "com.couchbase.client.dcp": "DEBUG",
                                                   "com.couchbase.client.core.node": "WARN",
                                                   "com.couchbase.analytics": "DEBUG",
+                                                  "com.couchbase.client.analytics": "ERROR",
                                                   "org.apache.hyracks": "DEBUG",
                                                   "org.apache.asterix": "DEBUG",
                                                   "org.apache.hyracks.http.server.CLFLogger": "ACCESS"

@@ -583,6 +583,11 @@ class CBASDataOperations(CBASBaseTest):
 
         self.log.info("Decrease analytics memory quota to 1024 MB")
         self.rest.set_service_memoryQuota(service='cbasMemoryQuota', memoryQuota=testconstants.CBAS_QUOTA)
+        
+        self.sleep(30, message="Waiting for cbas service to come up")
+        
+        self.log.info("Wait for ingestion to complete and verify count")
+        self.cbas_util.wait_for_ingestion_complete([self.dataset_name], total_documents)
 
         self.log.info("Verify document count remains unchanged")
         self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.dataset_name, total_documents))
