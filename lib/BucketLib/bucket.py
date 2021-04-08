@@ -6,7 +6,7 @@ Created on Sep 25, 2017
 from memcached.helper.kvstore import KVStore
 
 class Bucket():
-    def __init__(self, bucket_size='', name="", authType="sasl", saslPassword="", num_replicas=0, port=11211, master_id=None,
+    def __init__(self, bucket_size='', name="", num_replicas=0, port=11211, master_id=None,
                  type='', eviction_policy="valueOnly", bucket_priority=None, uuid="", lww=False,
                  storageBackend="couchstore"):
         self.name = name
@@ -18,11 +18,8 @@ class Bucket():
         self.vbuckets = []
         self.forward_map = []
         self.numReplicas = num_replicas
-        self.saslPassword = saslPassword
-        self.authType = ""
         self.bucket_size = bucket_size
         self.kvs = {1:KVStore()}
-        self.authType = authType
         self.master_id = master_id
         self.eviction_policy = eviction_policy
         self.bucket_priority = bucket_priority

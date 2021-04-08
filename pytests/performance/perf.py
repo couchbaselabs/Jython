@@ -305,7 +305,7 @@ class PerfBase(unittest.TestCase):
 
         type: paramter type, e.g: flush_param, tap_param, etc
         """
-        bucket = Bucket(name=self.buckets[0], authType="sasl", saslPassword="")
+        bucket = Bucket(name=self.buckets[0])
         for server in self.input.servers:
             shell = RemoteMachineShellConnection(server)
             shell.execute_cbepctl(bucket,

@@ -70,8 +70,6 @@ class BucketHelper(bucket_helper_rest, SDKClient):
         
     def create_bucket(self, bucket='',
                       ramQuotaMB=1,
-                      authType='none',
-                      saslPassword='',
                       replicaNumber=1,
                       proxyPort=11211,
                       bucketType='membase',
@@ -95,7 +93,6 @@ class BucketHelper(bucket_helper_rest, SDKClient):
             else:
                 bucketSettings.type(BucketType.COUCHBASE)
                 
-            bucketSettings.password(saslPassword)
             bucketSettings.replicas(replicaNumber)
             bucketSettings.name(bucket)
             bucketSettings.quota(ramQuotaMB)

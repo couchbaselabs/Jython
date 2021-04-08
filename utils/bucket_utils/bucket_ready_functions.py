@@ -103,7 +103,7 @@ class bucket_utils():
                 shell.set_tracing_for_ups(self.default_bucket_name)
             
             
-            self.buckets.append(Bucket(name="default", authType="sasl", saslPassword="",
+            self.buckets.append(Bucket(name="default",
                                        num_replicas=self.num_replicas, bucket_size=self.bucket_size,
                                        eviction_policy=self.eviction_policy, lww=self.lww,
                                        type=self.bucket_type,maxttl=self.maxttl, compression_mode=self.compression_mode))
@@ -169,7 +169,7 @@ class bucket_utils():
 
             bucket_tasks.append(self.cluster.async_create_sasl_bucket(name=name, password=self.sasl_password,
                                                                       bucket_params=bucket_params))
-            self.buckets.append(Bucket(name=name, authType="sasl", saslPassword=self.sasl_password,
+            self.buckets.append(Bucket(name=name,
                                        num_replicas=self.num_replicas, bucket_size=self.bucket_size,
                                        master_id=server_id, eviction_policy=self.eviction_policy, lww=self.lww,
                                        maxttl=self.maxttl, compression_mode=self.compression_mode))
@@ -191,7 +191,7 @@ class bucket_utils():
                                                     maxttl=self.maxttl, compression_mode=self.compression_mode,
                                                     storageBackend=self.bucket_storage)
         self.cluster.create_default_bucket(default_params)
-        self.buckets.append(Bucket(name="default", authType="sasl", saslPassword="",
+        self.buckets.append(Bucket(name="default",
                                    num_replicas=self.num_replicas, bucket_size=self.bucket_size,
                                    eviction_policy=self.eviction_policy, lww=self.lww,
                                    type=self.bucket_type,maxttl=self.maxttl,
@@ -208,17 +208,10 @@ class bucket_utils():
             info = rest.get_nodes_self()
             bucket_ram = info.memoryQuota * 2 / 3
 
-        if password == None:
-            authType = "sasl"
-        else:
-            authType = "none"
-
         bucket_conn.create_bucket(bucket=name,
                            ramQuotaMB=bucket_ram,
                            replicaNumber=replica,
                            proxyPort=port,
-                           authType=authType,
-                           saslPassword=password,
                            maxTTL=self.maxttl, compressionMode=self.compression_mode, bucketType=bucket_type,evictionPolicy=evictionPolicy)
         msg = 'create_bucket succeeded but bucket "{0}" does not exist'
         bucket_created = self.wait_for_bucket_creation(name, bucket_conn)
@@ -228,7 +221,7 @@ class bucket_utils():
                 test_case.fail(msg=msg.format(name))
         
         if bucket_created:      
-            self.buckets.append(Bucket(name=name, authType="sasl", saslPassword="",
+            self.buckets.append(Bucket(name=name,
                                 num_replicas=self.num_replicas, bucket_size=self.bucket_size,
                                 eviction_policy=self.eviction_policy, lww=self.lww,
                                 type=self.bucket_type,
@@ -236,7 +229,7 @@ class bucket_utils():
         return bucket_created
     
     def create_multiple_buckets(self, server, replica, bucket_ram_ratio=(2.0 / 3.0),
-                                howmany=3, sasl=True, saslPassword='password',
+                                howmany=3, sasl=True,
                                 bucketType='membase', evictionPolicy='valueOnly'):
         success = True
         log = logger.Logger.get_logger()
@@ -260,8 +253,6 @@ class bucket_utils():
                     bucket_conn.create_bucket(bucket=name,
                                        ramQuotaMB=bucket_ram,
                                        replicaNumber=replica,
-                                       authType="sasl",
-                                       saslPassword=saslPassword,
                                        proxyPort=port,
                                        bucketType=bucketType,
                                        evictionPolicy=evictionPolicy,
@@ -280,7 +271,7 @@ class bucket_utils():
                     success = False
                     break
                 if bucket_created:
-                    self.buckets.append(Bucket(name=name, authType="sasl", saslPassword="",
+                    self.buckets.append(Bucket(name=name,
                                                num_replicas=self.num_replicas, bucket_size=self.bucket_size,
                                                eviction_policy=self.eviction_policy, lww=self.lww,
                                                type=self.bucket_type))
@@ -317,7 +308,7 @@ class bucket_utils():
             bucket_params['bucket_priority'] = bucket_priority
             bucket_tasks.append(self.cluster.async_create_standard_bucket(name=name, port=port,
                                                                           bucket_params=bucket_params))
-            self.buckets.append(Bucket(name=name, authType=None, saslPassword=None,
+            self.buckets.append(Bucket(name=name,
                                        num_replicas=self.num_replicas,
                                        bucket_size=self.bucket_size,
                                        port=port, master_id=server_id,
@@ -357,7 +348,7 @@ class bucket_utils():
             standard_params['bucket_priority']=bucket_priority
             bucket_tasks.append(self.cluster.async_create_standard_bucket(name=bucket_name,port=STANDARD_BUCKET_PORT+i,
                                                                           bucket_params=standard_params))
-            self.buckets.append(Bucket(name=bucket_name, authType=None, saslPassword=None,
+            self.buckets.append(Bucket(name=bucket_name,
                                        num_replicas=self.num_replicas,
                                        bucket_size=bucket_size,
                                        port=STANDARD_BUCKET_PORT + i, master_id=server_id,
@@ -397,7 +388,7 @@ class bucket_utils():
 
             bucket_tasks.append(self.cluster.async_create_memcached_bucket(name=name, port=port,
                                                                            bucket_params=bucket_params))
-            self.buckets.append(Bucket(name=name, authType=None, saslPassword=None,
+            self.buckets.append(Bucket(name=name,
                                        num_replicas=self.num_replicas,
                                        bucket_size=bucket_size, port=port,
                                        master_id=server_id, type='memcached',

@@ -27,7 +27,10 @@ class SDKClient(object):
             self._createString(scheme=scheme, bucket = bucket, hosts = hosts,
                                certpath = certpath, uhm_options = uhm_options)
         self.bucket = bucket
-        self.password = password
+        if password == None:
+            self.password ='password'
+        else:
+            self.password = password
         self.quiet = quiet
         self.transcoder = transcoder
         self.default_timeout = 0
@@ -542,23 +545,16 @@ class SDKSmartClient(object):
         else:
             self.bucket=bucket
 
-        if hasattr(bucket, 'saslPassword'):
-            self.saslPassword = bucket.saslPassword
-        else:
-            bucket_info = rest.get_bucket(bucket)
-            self.saslPassword = bucket_info.saslPassword
-
-
         if rest.ip == "127.0.0.1":
             self.host = "{0}:{1}".format(rest.ip,rest.port)
             self.scheme = "http"
         else:
             self.host = rest.ip
             self.scheme = "couchbase"
-        self.client = SDKClient(self.bucket, hosts = [self.host], scheme = self.scheme, password = self.saslPassword)
+        self.client = SDKClient(self.bucket, hosts = [self.host], scheme = self.scheme)
 
       def reset(self, rest=None):
-        self.client = SDKClient(self.bucket, hosts = [self.host], scheme = self.scheme, password = self.saslPassword)
+        self.client = SDKClient(self.bucket, hosts = [self.host], scheme = self.scheme)
 
       def memcached(self, key):
         return self.client

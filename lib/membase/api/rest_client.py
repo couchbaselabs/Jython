@@ -2381,9 +2381,6 @@ class RestConnection(object):
             bucket_info = self.get_bucket_json(bucket)
             quota = self.get_bucket_json(bucket)["quota"]["ram"] / (1048576 * num_nodes)
             params["ramQuotaMB"] = quota
-            if bucket_info["authType"] == "sasl" and bucket_info["name"] != "default":
-                params["authType"] = self.get_bucket_json(bucket)["authType"]
-                params["saslPassword"] = self.get_bucket_json(bucket)["saslPassword"]
 
         params["parallelDBAndViewCompaction"] = parallelDBAndVC
         # Need to verify None because the value could be = 0
@@ -3603,7 +3600,7 @@ class NodeDiskStorage(object):
 
 
 class Bucket(object):
-    def __init__(self, bucket_size='', name="", authType="sasl", saslPassword="", num_replicas=0, port=11211, master_id=None,
+    def __init__(self, bucket_size='', name="", num_replicas=0, port=11211, master_id=None,
                  type='', eviction_policy="valueOnly", bucket_priority=None, uuid="", lww=False, maxttl=None,
                  compression_mode = "passive", storageBackend="couchstore"):
         self.name = name
@@ -3615,11 +3612,8 @@ class Bucket(object):
         self.vbuckets = []
         self.forward_map = []
         self.numReplicas = num_replicas
-        self.saslPassword = saslPassword
-        self.authType = ""
         self.bucket_size = bucket_size
         self.kvs = {1:KVStore()}
-        self.authType = authType
         self.master_id = master_id
         self.eviction_policy = eviction_policy
         self.bucket_priority = bucket_priority
@@ -3828,8 +3822,6 @@ class RestParser(object):
         bucket.uuid = parsed['uuid']
         bucket.type = parsed['bucketType']
         bucket.port = parsed['proxyPort']
-        bucket.authType = parsed["authType"]
-        bucket.saslPassword = parsed["saslPassword"]
         bucket.nodes = list()
         if 'vBucketServerMap' in parsed:
             vBucketServerMap = parsed['vBucketServerMap']

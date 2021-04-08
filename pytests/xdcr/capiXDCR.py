@@ -43,43 +43,45 @@ class Capi(XDCRNewBaseTest, NewUpgradeBaseTest):
         rest_conn = RestConnection(self.src_cluster.get_master_node())
         if bucket == 'default':
             self.log.info("Creating default bucket")
-            rest_conn.create_bucket(bucket='default', ramQuotaMB=100, authType='none', saslPassword='', replicaNumber=1,
-                                proxyPort=11211, bucketType='membase', replica_index=1, threadsNumber=3,
-                                flushEnabled=1, lww=False)
-            self.src_cluster.add_bucket(ramQuotaMB=100, bucket='default', authType='none',
-                                   saslPassword='', replicaNumber=1, proxyPort=11211, bucketType='membase',
-                                   evictionPolicy='valueOnly')
+            rest_conn.create_bucket(bucket='default', ramQuotaMB=100, replicaNumber=1,
+                                    proxyPort=11211, bucketType='membase', replica_index=1, threadsNumber=3,
+                                    flushEnabled=1, lww=False)
+            self.src_cluster.add_bucket(ramQuotaMB=100, bucket='default',
+                                        replicaNumber=1, proxyPort=11211, bucketType='membase',
+                                        evictionPolicy='valueOnly')
         elif bucket == 'sasl':
             self.log.info("Creating sasl bucket")
-            rest_conn.create_bucket(bucket='sasl', ramQuotaMB=100, authType='sasl', saslPassword='password', replicaNumber=1,
-                                proxyPort=11211, bucketType='membase', replica_index=1, threadsNumber=3,
-                                flushEnabled=1, lww=False)
-            self.src_cluster.add_bucket(ramQuotaMB=100, bucket='sasl', authType='sasl',
-                                   saslPassword='password', replicaNumber=1, proxyPort=11211, bucketType='membase',
-                                   evictionPolicy='valueOnly')
+            rest_conn.create_bucket(bucket='sasl', ramQuotaMB=100, replicaNumber=1,
+                                    proxyPort=11211, bucketType='membase', replica_index=1, threadsNumber=3,
+                                    flushEnabled=1, lww=False)
+            self.src_cluster.add_bucket(ramQuotaMB=100, bucket='sasl',
+                                        replicaNumber=1, proxyPort=11211, bucketType='membase',
+                                        evictionPolicy='valueOnly')
         elif bucket == 'standard':
             self.log.info("Creating standard bucket")
-            rest_conn.create_bucket(bucket='standard', ramQuotaMB=100, authType='none', saslPassword='', replicaNumber=1,
-                                proxyPort=STANDARD_BUCKET_PORT, bucketType='membase', replica_index=1, threadsNumber=3,
-                                flushEnabled=1, lww=False)
-            self.src_cluster.add_bucket(ramQuotaMB=100, bucket='standard', authType='none',
-                                   saslPassword='', replicaNumber=1, proxyPort=STANDARD_BUCKET_PORT, bucketType='membase',
-                                   evictionPolicy='valueOnly')
-        elif bucket== 'lww':
+            rest_conn.create_bucket(bucket='standard', ramQuotaMB=100, replicaNumber=1,
+                                    proxyPort=STANDARD_BUCKET_PORT, bucketType='membase', replica_index=1,
+                                    threadsNumber=3,
+                                    flushEnabled=1, lww=False)
+            self.src_cluster.add_bucket(ramQuotaMB=100, bucket='standard',
+                                        replicaNumber=1, proxyPort=STANDARD_BUCKET_PORT, bucketType='membase',
+                                        evictionPolicy='valueOnly')
+        elif bucket == 'lww':
             self.log.info("Creating lww bucket")
-            rest_conn.create_bucket(bucket='lww', ramQuotaMB=100, authType='none', saslPassword='', replicaNumber=1,
-                                proxyPort=11211, bucketType='membase', replica_index=1, threadsNumber=3,
-                                flushEnabled=1, lww=True)
-            self.src_cluster.add_bucket(ramQuotaMB=100, bucket='lww', authType='none',
-                                   saslPassword='', replicaNumber=1, proxyPort=11211, bucketType='membase',
-                                   evictionPolicy='valueOnly')
+            rest_conn.create_bucket(bucket='lww', ramQuotaMB=100, replicaNumber=1,
+                                    proxyPort=11211, bucketType='membase', replica_index=1, threadsNumber=3,
+                                    flushEnabled=1, lww=True)
+            self.src_cluster.add_bucket(ramQuotaMB=100, bucket='lww',
+                                        replicaNumber=1, proxyPort=11211, bucketType='membase',
+                                        evictionPolicy='valueOnly')
         esrest_conn = EsRestConnection(self.dest_cluster.get_master_node())
         esrest_conn.create_index(bucket)
         rest_conn.add_remote_cluster(remoteIp=self.dest_master.ip, remotePort=9091, username='Administrator',
                                      password='password', name='es')
         self.src_cluster.get_remote_clusters().append(XDCRRemoteClusterRef(self.src_cluster, self.dest_cluster,
-                                                                       Utility.get_rc_name(self.src_cluster.get_name(),
-                                                                                        self.dest_cluster.get_name())))
+                                                                           Utility.get_rc_name(
+                                                                               self.src_cluster.get_name(),
+                                                                               self.dest_cluster.get_name())))
         repl_id = rest_conn.start_replication(replicationType='continuous', fromBucket=bucket, toCluster='es',
                                               rep_type='capi', toBucket=bucket, xdcr_params=xdcr_params)
         return repl_id

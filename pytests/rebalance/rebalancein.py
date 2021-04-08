@@ -656,7 +656,7 @@ class RebalanceInTests(RebalanceBaseTest):
         rest = RestConnection(self.master)
         bucket_to_change = [bucket for bucket in self.buckets
                             if bucket.authType == 'sasl' and bucket.name != 'default'][0]
-        rest.change_bucket_props(bucket_to_change, saslPassword=new_pass)
+        rest.change_bucket_props(bucket_to_change)
         rebalance = self.cluster.async_rebalance(servs_result, servs_in_second, [])
         rebalance.result()
         self.verify_unacked_bytes_all_buckets()
