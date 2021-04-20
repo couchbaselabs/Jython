@@ -36,7 +36,7 @@ class CBASBaseTest(BaseTestCase):
             
         self.analytics_helper = AnalyticsHelper()
         self._cb_cluster = self.cluster
-        self.travel_sample_total_docs_count = 63182
+        self.travel_sample_total_docs_count = 63288
         self.travel_sample_docs_count = 31591
         self.beer_sample_docs_count = 7303
         invalid_ip = '10.111.151.109'

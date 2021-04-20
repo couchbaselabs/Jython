@@ -565,8 +565,10 @@ class CBASBugAutomation(CBASBaseTest):
             self.log.info(self.cbas_path)
             expected_partitions = len(self.cbas_path.split(","))
         else:
+            cluster_info = self.rest.get_nodes_self()
             self.log.info("Variable partitions : Pick min of cores on machine, cbas_memory_quota")
-            expected_partitions = min(min(16, int(cores)), int(self.cbas_memory_quota/1024))
+            expected_partitions = min(
+                min(16, int(cores)), int(cluster_info.__getattribute__("cbasMemoryQuota")/1024))
         self.log.info("Expected partitions %d" % expected_partitions)
 
         self.assertTrue(partitions==expected_partitions, msg="Number of partitions mismatch. Expected %s Actual %s" %(expected_partitions, partitions))

@@ -7,8 +7,10 @@ class CBASDatasetMetaFilters(CBASBaseTest):
         super(CBASDatasetMetaFilters, self).setUp()
 
         self.log.info("Load Travel-Sample bucket")
-        self.assertTrue(self.load_sample_buckets(servers=[self.master], bucketName=self.cb_bucket_name,
-                                                 total_items=self.travel_sample_docs_count), msg="Failed to load Travel-Sample bucket")
+        self.assertTrue(self.load_sample_buckets(
+            servers=[self.master], bucketName=self.cb_bucket_name,
+            total_items=self.travel_sample_total_docs_count), 
+            msg="Failed to load Travel-Sample bucket")
 
         self.log.info("Create connection")
         self.cbas_util.createConn(self.cb_bucket_name)
@@ -24,7 +26,7 @@ class CBASDatasetMetaFilters(CBASBaseTest):
         for queries in CBASMetaQueries.META_QUERIES:
             
             if remove_bucket_name_from_meta:
-               queries['cbas_query'] = queries['cbas_query'].replace('meta(`travel-sample`).id', 'meta().id') 
+                queries['cbas_query'] = queries['cbas_query'].replace('meta(`travel-sample`).id', 'meta().id') 
             
             test_failed = False
             self.log.info("---------- Running test with id : %s ----------" % queries['id'])
@@ -51,8 +53,8 @@ class CBASDatasetMetaFilters(CBASBaseTest):
     
             self.log.info("Validate count on CBAS")
             if not self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, count_n1ql):
-               test_failed = True
-               self.log.info("Count mismatch for id : %s" % queries['id'])
+                test_failed = True
+                self.log.info("Count mismatch for id : %s" % queries['id'])
             
             if test_failed:
                 failed_test_count += 1
