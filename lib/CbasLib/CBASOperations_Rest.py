@@ -43,7 +43,7 @@ class CBASHelper(RestConnection):
             params['mode'] = mode
         
         if scan_consistency is not None:
-           params['scan_consistency'] = scan_consistency
+            params['scan_consistency'] = scan_consistency
             
         if scan_wait is not None:
             params['scan_wait'] = scan_wait
@@ -58,7 +58,7 @@ class CBASHelper(RestConnection):
         elif str(header['status']) == '503':
             log.info("Request Rejected")
             raise Exception("Request Rejected")
-        elif str(header['status']) in ['500','400']:
+        elif str(header['status']) in ['500','400','409','403']:
             json_content = json.loads(content)
             msg = json_content['errors'][0]['msg']
             if "Job requirement" in  msg and "exceeds capacity" in msg:

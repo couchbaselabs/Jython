@@ -546,13 +546,6 @@ class CBASError:
             "run_in_loop": True
         },
         {
-            "id": "disallow_user_functions",
-            "msg": "Unsupported statement (CREATE_FUNCTION)",
-            "code": 24004,
-            "query": "create function default.fun01(){'Test'}",
-            "run_in_loop": True
-        },
-        {
             "id": "drop_link_not_exist",
             "msg": "Link Default.local1 does not exist",
             "code": 24006,
@@ -567,13 +560,6 @@ class CBASError:
             "run_in_loop": True
         },
         {
-            "id": "type_incompatibility",
-            "msg": "Type incompatibility: function numeric-add gets incompatible input values: string and string",
-            "code": 24012,
-            "query": 'select "a"+"b"',
-            "run_in_loop": True
-        },
-        {
             "id": "duplicate_field",
             "msg": 'Duplicate field name \"a\"',
             "code": 24015,
@@ -582,28 +568,28 @@ class CBASError:
         },
         {
             "id": "dataset_not_found",
-            "msg": "Cannot find dataset with name Bucket in dataverse Default",
+            "msg": "Cannot find analytics collection with name Bucket in analytics scope Default",
             "code": 24025,
             "query": 'drop index Bucket.Bucket',
             "run_in_loop": True
         },
         {
             "id": "dataverse_not_found",
-            "msg": "Cannot find dataverse with name custom",
+            "msg": "Cannot find analytics scope with name custom",
             "code": 24034,
             "query": 'use custom',
             "run_in_loop": True
         },
         {
             "id": "dataverse_already_exist",
-            "msg": "A dataverse with this name Default already exists",
+            "msg": "An analytics scope with this name Default already exists",
             "code": 24039,
             "query": 'create dataverse Default',
             "run_in_loop": True
         },
         {
             "id": "create_dataset_that_exist",
-            "msg": "A dataset with name ds already exists in dataverse Default",
+            "msg": "An analytics collection with name ds already exists in analytics scope Default",
             "code": 24040,
             "query": "create dataset ds on default",
             "run_in_loop": True
@@ -617,7 +603,7 @@ class CBASError:
         },
         {
             "id": "dataset_not_found",
-            "msg": "Cannot find dataset ds1 in dataverse Default nor an alias with name ds1!",
+            "msg": "Cannot find analytics collection ds1 in analytics scope Default nor an alias with name ds1",
             "code": 24045,
             "query": 'select * from ds1',
             "run_in_loop": True
@@ -665,9 +651,9 @@ class CBASError:
         },
         # Error codes starting with 25XXX
         {
-            "id": "internal_error",
-            "msg": 'Internal error',
-            "code": 25000,
+            "id": "invalid query parameter",
+            "msg": 'Invalid query parameter compiler.groupmemory',
+            "code": 24128,
             "query": 'SET `compiler.groupmemory` "100000GB";select sleep(count(*),500) from ds GROUP BY name',
             "run_in_loop": True
         },
