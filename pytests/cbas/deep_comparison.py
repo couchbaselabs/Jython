@@ -345,7 +345,8 @@ class DeepComparison(CBASBaseTest):
         self.log.info('Verify join by record')
         self.log.info('Execute query on SQL++')
         sql_query = 'FROM `%s` ds1 JOIN `%s` ds2 ON ds1.geo = ds2.geo SELECT meta(ds1).id ORDER BY meta(ds1).id ASC' % (self.cbas_dataset_name, self.cbas_dataset_name)
-        sql_status, _, _, sql_result, _ = self.cbas_util.execute_statement_on_cbas_util(sql_query)
+        sql_status, _, _, sql_result, _ = self.cbas_util.execute_statement_on_cbas_util(
+            sql_query, timeout=300, analytics_timeout=300)
         self.assertEqual(sql_status, "success", "SQL++ Query %s failed. Actual: %s, Expected:%s" % (sql_query, sql_status, 'success'))
 
         self.log.info('Creating index on N1QL')
@@ -367,7 +368,8 @@ class DeepComparison(CBASBaseTest):
         self.log.info('Verify join by array')
         self.log.info('Execute query on SQL++')
         sql_query = 'FROM `%s` ds1 JOIN `%s` ds2 ON ds1.public_likes = ds2.public_likes SELECT meta(ds1).id ORDER BY meta(ds1).id ASC' % (self.cbas_dataset_name, self.cbas_dataset_name)
-        sql_status, _, _, sql_result, _ = self.cbas_util.execute_statement_on_cbas_util(sql_query)
+        sql_status, _, _, sql_result, _ = self.cbas_util.execute_statement_on_cbas_util(
+            sql_query, timeout=300, analytics_timeout=300)
         self.assertEqual(sql_status, "success", "SQL++ Query %s failed. Actual: %s, Expected:%s" % (sql_query, sql_status, 'success'))
 
         self.log.info('Creating index on N1QL')
