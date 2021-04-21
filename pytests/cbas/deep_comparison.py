@@ -149,7 +149,11 @@ class DeepComparison(CBASBaseTest):
     def test_deep_comparision_where_clause(self):
 
         self.log.info("Load Beer-Sample bucket")
-        self.assertTrue(self.load_sample_buckets(servers=[self.master], bucketName=self.cb_bucket_name, total_items=self.travel_sample_docs_count), msg="Failed to load Travel-Sample, item count mismatch")
+        self.assertTrue(
+            self.load_sample_buckets(
+                servers=[self.master], bucketName=self.cb_bucket_name, 
+                total_items=self.travel_sample_total_docs_count), 
+            msg="Failed to load Travel-Sample, item count mismatch")
 
         self.log.info("Create connection")
         self.cbas_util.createConn(self.cb_bucket_name)
@@ -198,7 +202,11 @@ class DeepComparison(CBASBaseTest):
     def test_deep_comparision_sort(self):
 
         self.log.info('Load travel-sample bucket')
-        self.assertTrue(self.load_sample_buckets(servers=[self.master], bucketName=self.cb_bucket_name, total_items=self.travel_sample_docs_count), msg="Failed to load Travel-Sample, item count mismatch")
+        self.assertTrue(
+            self.load_sample_buckets(
+                servers=[self.master], bucketName=self.cb_bucket_name, 
+                total_items=self.travel_sample_total_docs_count), 
+            msg="Failed to load Travel-Sample, item count mismatch")
 
         self.log.info("Create connection")
         self.cbas_util.createConn(self.cb_bucket_name)
@@ -247,7 +255,11 @@ class DeepComparison(CBASBaseTest):
     def test_deep_comparision_group_by(self):
 
         self.log.info('Load travel-sample bucket')
-        self.assertTrue(self.load_sample_buckets(servers=[self.master], bucketName=self.cb_bucket_name, total_items=self.travel_sample_docs_count), msg="Failed to load Travel-Sample, item count mismatch")
+        self.assertTrue(
+            self.load_sample_buckets(
+                servers=[self.master], bucketName=self.cb_bucket_name, 
+                total_items=self.travel_sample_total_docs_count), 
+            msg="Failed to load Travel-Sample, item count mismatch")
 
         self.log.info("Create connection")
         self.cbas_util.createConn(self.cb_bucket_name)
@@ -312,7 +324,11 @@ class DeepComparison(CBASBaseTest):
     def test_deep_comparision_join(self):
 
         self.log.info('Load travel-sample bucket')
-        self.assertTrue(self.load_sample_buckets(servers=[self.master], bucketName=self.cb_bucket_name, total_items=self.travel_sample_docs_count), msg="Failed to load Travel-Sample, item count mismatch")
+        self.assertTrue(
+            self.load_sample_buckets(
+                servers=[self.master], bucketName=self.cb_bucket_name, 
+                total_items=self.travel_sample_total_docs_count), 
+            msg="Failed to load Travel-Sample, item count mismatch")
 
         self.log.info("Create connection")
         self.cbas_util.createConn(self.cb_bucket_name)
@@ -373,7 +389,11 @@ class DeepComparison(CBASBaseTest):
     def test_deep_comparision_distinct(self):
 
         self.log.info('Load travel-sample bucket')
-        self.assertTrue(self.load_sample_buckets(servers=[self.master], bucketName=self.cb_bucket_name, total_items=self.travel_sample_docs_count), msg="Failed to load Travel-Sample, item count mismatch")
+        self.assertTrue(
+            self.load_sample_buckets(
+                servers=[self.master], bucketName=self.cb_bucket_name, 
+                total_items=self.travel_sample_total_docs_count), 
+            msg="Failed to load Travel-Sample, item count mismatch")
 
         self.log.info("Create connection")
         self.cbas_util.createConn(self.cb_bucket_name)
