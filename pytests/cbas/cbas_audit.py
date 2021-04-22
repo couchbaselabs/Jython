@@ -250,7 +250,7 @@ class CBASAuditLogs(CBASBaseTest):
 
         self.log.info("Create a user with role cluster admin")
         rbac_util = rbac_utils(self.master)
-        rbac_util._create_user_and_grant_role("cbas_admin", "cluster_admin")
+        rbac_util._create_user_and_grant_role("cbas_admin", "cluster_admin:analytics_admin")
 
         self.log.info("Read configuration audit ids")
         self.audit_id = self.input.param("audit_id")

@@ -136,7 +136,10 @@ class x509tests(BaseTestCase):
                 output = x509main()._execute_command_clientcert(cbas_node.ip,url='/analytics/service',port=18095,headers=' --data pretty=true --data-urlencode '+query+' -u Administrator:password ',client_cert=False,curl=True,verb='POST')
             
             self.assertEqual(json.loads(output)['status'],"fatal","Create Index Failed")
-            self.assertEqual(json.loads(output)['errors'][0]['msg'],'User must have permission (cluster.analytics!select)',"Incorrect error message.")
+            self.assertEqual(
+                json.loads(output)['errors'][0]['msg'],
+                'User must have permission (cluster.collection[.:.:.].analytics!select)',
+                "Incorrect error message.")
             self.assertEqual(json.loads(output)['errors'][0]['code'],20001,"Incorrect code.")
     
     def test_incorrect_user(self):

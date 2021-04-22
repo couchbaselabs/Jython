@@ -98,7 +98,7 @@ class CBASScanConsistency(CBASBaseTest):
         query = 'select * from %s' % self.cbas_dataset_name
         response, _, error, _, _ = self.cbas_util.execute_statement_on_cbas_util(query, scan_consistency='request_plus', scan_wait='1ns')
         self.assertEqual(response, "fatal", "Query must fail as KV bucket is disconnected")
-        self.assertEqual(error[0]['msg'], 'Bucket default on link Local in dataverse Default is not connected', msg='Error message mismatch')
+        self.assertEqual(error[0]['msg'], 'Bucket default on link Default.Local is not connected', msg='Error message mismatch')
         self.assertEqual(error[0]['code'], 23027, msg='Error code mismatch')
 
     def test_scan_consistency_parameters_are_logged(self):

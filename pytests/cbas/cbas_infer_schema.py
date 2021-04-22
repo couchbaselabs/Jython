@@ -19,7 +19,7 @@ class CBASInferSchema(CBASInferBase):
         status, _, error, _, _ = self.cbas_util.execute_statement_on_cbas_util(
             'array_infer_schema((%s),{"similarity_metric":0.6})' % self.cb_bucket_name)
         self.assertTrue(status == "fatal", msg='Infer schema must fail as dataset does not exist')
-        expected_error = "Cannot find dataset {0} in dataverse Default nor an alias with name {1}".format(
+        expected_error = "Cannot find analytics collection {0} in analytics scope Default nor an alias with name {1}".format(
             self.cb_bucket_name, self.cb_bucket_name)
         self.assertTrue(expected_error in error[0]['msg'], msg='Error message mismatch')
         self.assertEqual(error[0]['code'], 24045, msg='Error code mismatch')
