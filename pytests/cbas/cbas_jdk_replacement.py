@@ -142,11 +142,17 @@ class CBASJdkReplacement(CBASBaseTest):
         self.log.info("Setting custom JRE path on node {0}".format(node.ip))
         if info == 'linux':
             # Todo: Replace the hard-coded jdk11 path and change in the testconstants file instead
-            if jdk_version == "jdk11":
+            if jdk_version == "openjdk11":
                 shell = RemoteMachineShellConnection(node)
-                output, error = shell.execute_command("sudo yum install -y java-11-openjdk-11.0.7.10-4.el7_8.x86_64")
+                output, error = shell.execute_command("sudo yum install -y java-11-openjdk")
                 shell.log_command_output(output, error)
-                path = "/usr/lib/jvm/java-11-openjdk-11.0.7.10-4.el7_8.x86_64"
+                output_1, error_1 = shell.execute_command("ls /usr/lib/jvm")
+                shell.log_command_output(output_1, error_1)
+                if output_1:
+                    for item in output_1:
+                        if "java-11-openjdk" in item:
+                            path = item.strip("\n")
+                path = "/usr/lib/jvm/{0}".format(path)
             else:
                 path = LINUX_JDK_PATH + jdk_version
         elif info == 'windows':
@@ -178,11 +184,6 @@ class CBASJdkReplacement(CBASBaseTest):
         self.log.info("Async load data in KV until upgrade is complete")
         async_load_data = Thread(target=async_load_data, args=())
         async_load_data.start()
-
-        self.log.info("Update storageMaxActiveWritableDatasets count")
-        update_config_map = {"storageMaxActiveWritableDatasets": 12}
-        status, _, _ = self.cbas_util.update_service_parameter_configuration_on_cbas(update_config_map)
-        self.assertTrue(status, msg="Failed to update config")
         
         self.log.info("Run concurrent CBAS queries")
         statement = "select sleep(count(*), 50000) from {0} where mutated=0;".format(self.cbas_dataset_name + "0")
@@ -195,7 +196,7 @@ class CBASJdkReplacement(CBASBaseTest):
         times = 1
         try:
             for jdk in available_jdks:
-                if jdk == "jdk11":
+                if jdk == "openjdk11":
                     for node in self.analytics_servers:
                         if not self.input.param('use_cli', False):
                             self.log.info("Replacing JRE using REST")
@@ -229,6 +230,7 @@ class CBASJdkReplacement(CBASBaseTest):
             
             self.log.info("Stop ingestion on KV")
             _STOP_INGESTION = True
+            self.sleep(timeout=300, message="Wait for data loading to stop")
     
             self.log.info("Verify count post JDK replacements")
             for x in range(times):

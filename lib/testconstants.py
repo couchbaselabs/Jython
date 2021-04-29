@@ -303,6 +303,6 @@ LINUX_JAVA_RUNTIME_DEFAULT_PATH = {'java_home': '/opt/couchbase/lib/cbas/runtime
 JAVA_RUN_TIMES = {
     'jre8':      {'java_home': 'jre8', 'java_runtime_name': 'Java(TM) SE Runtime Environment', 'java_runtime_version': '1.8.'},
     'jdk11':     {'java_home': 'jdk11', 'java_runtime_name': 'Java(TM) SE Runtime Environment', 'java_runtime_version': '11.0.'},
-    'openjdk11': {'java_home': 'openjdk11', 'java_runtime_name': 'OpenJDK Runtime Environment', 'java_runtime_version': '11.0.'},
+    'openjdk11': {'java_home': 'openjdk', 'java_runtime_name': 'OpenJDK Runtime Environment', 'java_runtime_version': '11.0.'},
     'openjdk8':  {'java_home': 'openjdk8', 'java_runtime_name': 'OpenJDK Runtime Environment', 'java_runtime_version': '1.8.'}
 }
