@@ -306,7 +306,8 @@ class CBASPendingMutations(CBASBaseTest):
         self.log.info("Assert mutation progress API response")
         self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, self.num_items * 4), msg="Count mismatch on CBAS")
         self.assertTrue(len(aggregate_remaining_mutations_list) > 1, msg="Found no items during ingestion")
-        self.assertFalse(is_remaining_mutation_count_reducing, msg="Remaining mutation must increase as ingestion progress's")
+        # Changing logic here, because as and when data is being pumped into the kv bucket it is being ingested by dataset, so pending mutation count will come as 0.
+        self.assertTrue(is_remaining_mutation_count_reducing, msg="Remaining mutation count must reduce as ingestion progress's")
         
     def tearDown(self):
         super(CBASPendingMutations, self).tearDown()
