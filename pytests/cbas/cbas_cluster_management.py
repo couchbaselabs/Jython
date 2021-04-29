@@ -408,7 +408,7 @@ class CBASClusterManagement(CBASBaseTest):
         
         Author: Ritesh Agarwal
         '''
-        self.load_sample_buckets(bucketName=self.cb_bucket_name, total_items=self.travel_sample_docs_count)
+        self.load_sample_buckets(bucketName=self.cb_bucket_name, total_items=self.travel_sample_total_docs_count)
         self.add_node(self.cbas_node, services=["kv","cbas"])
         self.setup_cbas_bucket_dataset_connect(self.cb_bucket_name, self.travel_sample_docs_count)
         

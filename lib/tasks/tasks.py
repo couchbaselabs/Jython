@@ -187,7 +187,7 @@ class NodeInitializeTask(Task):
                 self. set_unexpected_exception(error)
                 return
         info = Task.wait_until(lambda: rest.get_nodes_self(),
-                                 lambda x: x.memoryTotal > 0, 10)
+                                 lambda x: x.memoryTotal > 0, 300)
         log.info("server: %s, nodes/self: %s", self.server, info.__dict__)
 
         username = self.server.rest_username
