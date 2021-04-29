@@ -306,9 +306,15 @@ class CbasUpgrade(NewUpgradeBaseTest):
                 # Todo: Replace the hard-coded jdk11 path and change in the testconstants file instead
                 if jdk_version == "jdk11":
                     shell = RemoteMachineShellConnection(node)
-                    output, error = shell.execute_command("sudo yum install -y java-11-openjdk-11.0.7.10-4.el7_8.x86_64")
+                    output, error = shell.execute_command("sudo yum install -y java-11-openjdk")
                     shell.log_command_output(output, error)
-                    path = "/usr/lib/jvm/java-11-openjdk-11.0.7.10-4.el7_8.x86_64"
+                    output_1, error_1 = shell.execute_command("ls /usr/lib/jvm")
+                    shell.log_command_output(output_1, error_1)
+                    if output_1:
+                        for item in output_1:
+                            if "java-11-openjdk" in item:
+                                path = item.strip("\n")
+                    path = "/usr/lib/jvm/{0}".format(path)
                 else:
                     path = testconstants.LINUX_JDK_PATH + jdk_version
             elif info == 'windows':
