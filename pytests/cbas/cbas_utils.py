@@ -1214,7 +1214,7 @@ class cbas_utils():
     def set_global_compression_type(self, compression_type="snappy", username=None, password=None):
         return self.cbas_helper.set_global_compression_type(compression_type, username, password)
     
-    def wait_for_cbas_to_recover(self, timeout=180):
+    def wait_for_cbas_to_recover(self, timeout=300):
         """
         Returns True if analytics service is recovered/available. 
         False if service is unavailable despite waiting for specified "timeout" period.
@@ -1227,9 +1227,12 @@ class cbas_utils():
                 if status == "success":
                     analytics_recovered = True
                     break
+                else:
+                    self.log.info("Service unavailable sleep for 30 seconds, and retry")
+                    time.sleep(30)
             except:
-                self.log.info("Service unavailable sleep for 2 seconds, and retry")
-                time.sleep(2)
+                self.log.info("Service unavailable sleep for 30 seconds, and retry")
+                time.sleep(30)
         return analytics_recovered
 
     # Backup Analytics metadata
