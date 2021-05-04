@@ -230,7 +230,7 @@ class LogRedactionBase(BaseTestCase):
         shell = RemoteMachineShellConnection(server)
         os = shell.return_os_type()
         if os == 'linux':
-            path = LINUX_COUCHBASE_LOGS_PATH + 'audit.log'
+            path = LINUX_COUCHBASE_LOGS_PATH + '/audit.log'
         elif os == 'windows':
             path = WIN_COUCHBASE_LOGS_PATH + 'audit.log'
         else:

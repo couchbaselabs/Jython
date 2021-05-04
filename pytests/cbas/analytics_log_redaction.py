@@ -108,7 +108,7 @@ class LogRedactionTests(CBASBaseTest, LogRedactionBase):
         self.cbas_util.fetch_cbas_stats()
 
     def generate_audit_events(self):
-        update_config_map = {'storageMaxActiveWritableDatasets': 8}
+        update_config_map = {'jobHistorySize': 11}
         status, _, _ = self.cbas_util.update_service_parameter_configuration_on_cbas(update_config_map)
         self.assertTrue(status, msg='Failed to update config')
 
@@ -136,7 +136,7 @@ class LogRedactionTests(CBASBaseTest, LogRedactionBase):
         self.generate_audit_events()
 
         self.log.info('Verify audit log file is not redacted')
-        output, _ = self.check_audit_logs_are_not_redacted()
+        output, _ = self.check_audit_logs_are_not_redacted(self.cbas_node)
         if len(output) != 0:
             self.fail(msg='Audit logs must not be redacted')
 
