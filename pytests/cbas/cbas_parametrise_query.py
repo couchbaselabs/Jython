@@ -27,7 +27,7 @@ class QueryParameterTest(CBASBaseTest):
             self.curl_path = "%scurl" % self.path
             self.n1ql_certs_path = "/cygdrive/c/Program\ Files/Couchbase/server/var/lib/couchbase/n1qlcerts"
         self.load_sample_buckets(servers=[self.master], bucketName="travel-sample",
-                                 total_items=self.travel_sample_docs_count)
+                                 total_items=self.travel_sample_total_docs_count)
         self.cbas_util.createConn("travel-sample")
 
         # Create dataset on the CBAS bucket
