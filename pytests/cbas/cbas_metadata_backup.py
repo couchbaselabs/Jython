@@ -490,7 +490,7 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
-        o = shell.create_backup(self.master, username=user)
+        o = shell.create_backup(self.cbas_node, username=user)
         self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
@@ -521,7 +521,7 @@ class MetadataBackup(CBASBaseTest):
         self.validate_metadata(self.dataverse_1, self.dataset_1, self.index_name_1, dataverse_count=1, dataset_count=1, index_count=1)
 
         self.log.info('Validate metadata for %s dataverse' % self.dataverse_2)
-        self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=0, dataset_count=0, index_count=0)
+        self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=1, dataset_count=0, index_count=0)
     
     def test_empty_dataverses_are_imported(self):
 
