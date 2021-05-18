@@ -6,7 +6,7 @@ class CBASDatasetCompression(CBASBaseTest):
 
         self.log.info("Load Travel-Sample bucket")
         self.assertTrue(self.load_sample_buckets(servers=[self.master], bucketName=self.cb_bucket_name,
-                                                 total_items=self.travel_sample_docs_count),
+                                                 total_items=self.travel_sample_total_docs_count),
                         msg="Failed to load Travel-Sample bucket")
 
         self.log.info("Create connection")
