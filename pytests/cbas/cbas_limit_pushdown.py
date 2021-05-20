@@ -69,9 +69,10 @@ class CBASLimitPushdown(CBASBaseTest):
                         self.assertTrue(metrics["processedObjects"] <= self.total_documents, msg="Processed object must be <= total documents. Actual %s" % (metrics["processedObjects"]))
                     else:
                         self.log.info("Skipping process object count check.In cases of sub query processed object count can be greater than total document count.")
-                else:
+                # Removing this check as auto-partitioning might set different number of CBAS partitions every time. 
+                """else:
                     self.assertEqual(self.partitions * query_object["limit_value"], metrics["processedObjects"], 
-                                     msg="Processed Object count mismatch. Actual %s Expected %s" %(metrics["processedObjects"], self.partitions * query_object["limit_value"]))
+                                     msg="Processed Object count mismatch. Actual %s Expected %s" %(metrics["processedObjects"], self.partitions * query_object["limit_value"]))"""
 
                 self.log.info("Assert query result")
                 self.assertEqual(n1ql_result, cbas_result, msg="Query result mismatch.\n n1ql:%s \n cbas:%s " % (n1ql_result, cbas_result))
