@@ -403,9 +403,13 @@ class MetadataReplication(CBASBaseTest):
             for server in self.cbas_servers:
                 NodeHelper.reboot_server(server, self)
         
-        self.sleep(60)
-        replica_nodes_after_reboot = self.cbas_util.get_replicas_info(self.shell)
-        replicas_after_reboot=len(replica_nodes_after_reboot)
+        end_time = time.time() + 600
+        while time.time() < end_time:
+            self.sleep(60)
+            replica_nodes_after_reboot = self.cbas_util.get_replicas_info(self.shell)
+            replicas_after_reboot=len(replica_nodes_after_reboot)
+            if replicas_after_reboot == replicas_before_reboot:
+                break
         
         self.assertTrue(replica_nodes_after_reboot == replica_nodes_before_reboot,
                         "Replica nodes changed after reboot. Before: %s , After : %s"
