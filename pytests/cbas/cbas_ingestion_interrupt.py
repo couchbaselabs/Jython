@@ -225,8 +225,13 @@ class IngestionInterrupt_CBAS(CBASBaseTest):
         self.log.info("After service restart %s queued jobs are Successful."%success_count)
         self.log.info("After service restart %s queued jobs are Aborted."%aborted_count)
         
-        if cbas_node_type == "NC":
-            self.assertTrue((fail_count+aborted_count)==0, "Some queries failed/aborted")
+        # Removing this check, as this check makes the test flaky.
+        # Reason as per Micheal Blow: 
+        #so i would guess that with Default.default_ds as a datasource, this is going to involve all nodes 
+        #and therefore should abort any running queries when the NC either re-registers, 
+        #or misses enough heartbeats that the CC considers him dead
+        """if cbas_node_type == "NC":
+            self.assertTrue((fail_count+aborted_count)==0, "Some queries failed/aborted")"""
                 
         query = "select count(*) from {0};".format(self.cbas_dataset_name)
         self.cbas_util._run_concurrent_queries(query,"immediate",100)
