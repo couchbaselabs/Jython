@@ -1078,15 +1078,13 @@ class RestConnection(object):
             else:
                 raise Exception("There is not zone with name: %s in cluster" % zone_name)
 
-        params = urllib.urlencode({'hostname': "http://{0}:{1}".format(remoteIp, port),
-                                   'user': user,
-                                   'password': password})
-        if services != None:
-            services = ','.join(services)
-            params = urllib.urlencode({'hostname': "http://{0}:{1}".format(remoteIp, port),
-                                   'user': user,
-                                   'password': password,
-                                   'services': services})
+        params = {'hostname': remoteIp,
+                  'user': user,
+                  'password': password}
+        if services is not None:
+            params['services'] = ','.join(services)
+        params = urllib.urlencode(params)
+
         status, content, header = self._http_request(api, 'POST', params)
         if status:
             json_parsed = json.loads(content)
@@ -1929,7 +1927,7 @@ class RestConnection(object):
         api = self.baseUrl + '/nodes/self/controller/settings'
         from urllib3._collections import HTTPHeaderDict
         data = HTTPHeaderDict()
-        
+
         paths = {}
         if data_path:
             data.add('path', data_path)
@@ -2509,7 +2507,7 @@ class RestConnection(object):
                 return json_parsed[param]
         else:
             return None
-        
+
     def flush_bucket(self, bucket="default"):
         if isinstance(bucket, Bucket):
             bucket_name = bucket.name
@@ -2981,7 +2979,7 @@ class RestConnection(object):
         api = self.baseUrl + "controller/cancelLogsCollection"
         status, content, header = self._http_request(api, "POST")
         return status, content
-    
+
     def set_log_redaction_level(self, redaction_level="none"):
         api = self.baseUrl + "settings/logRedaction"
         params = urllib.urlencode({"logRedactionLevel":redaction_level})
@@ -3536,7 +3534,7 @@ class RestConnection(object):
         if not status:
             raise Exception(content)
         return content
-    
+
 class MembaseServerVersion:
     def __init__(self, implementationVersion='', componentsVersion=''):
         self.implementationVersion = implementationVersion
@@ -3730,16 +3728,16 @@ class RestParser(object):
         node.memoryTotal = parsed['memoryTotal']
         node.mcdMemoryAllocated = parsed['mcdMemoryAllocated']
         node.mcdMemoryReserved = parsed['mcdMemoryReserved']
-        
+
         if 'indexMemoryQuota' in parsed:
             node.indexMemoryQuota = parsed['indexMemoryQuota']
-        if 'ftsMemoryQuota' in parsed:    
+        if 'ftsMemoryQuota' in parsed:
             node.ftsMemoryQuota = parsed['ftsMemoryQuota']
-        if 'cbasMemoryQuota' in parsed: 
+        if 'cbasMemoryQuota' in parsed:
             node.cbasMemoryQuota = parsed['cbasMemoryQuota']
-        if 'eventingMemoryQuota' in parsed: 
+        if 'eventingMemoryQuota' in parsed:
             node.eventingMemoryQuota = parsed['eventingMemoryQuota']
-        
+
         node.status = parsed['status']
         node.hostname = parsed['hostname']
         node.clusterCompatibility = parsed['clusterCompatibility']
