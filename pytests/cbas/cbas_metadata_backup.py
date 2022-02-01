@@ -13,7 +13,7 @@ class MetadataBackup(CBASBaseTest):
         if "set_cbas_memory_from_available_free_memory" not in self.input.test_params:
             self.input.test_params.update({"set_cbas_memory_from_available_free_memory": True})
         super(MetadataBackup, self).setUp()
-        
+
         self.log.info('Metadata for Default dataverse')
         self.skip_ds_index_creation_default = self.input.param("skip_ds_index_creation_default", False)
         self.beer_sample_bucket = 'beer-sample'
@@ -22,13 +22,13 @@ class MetadataBackup(CBASBaseTest):
         self.dataset = 'ds'
         self.index_name = 'idx'
         self.index_field_composite = 'geo.lon:double, geo.lat:double'
-        
+
         self.log.info('Metadata for Custom dataverse dv1')
         self.skip_ds_index_creation_dv1 = self.input.param("skip_ds_index_creation_dv1", False)
         self.dataverse_1 = 'dv1'
         self.dataset_1 = 'ds1'
         self.index_name_1 = 'idx1'
-        
+
         self.log.info('Metadata for Custom dataverse dv1')
         self.skip_ds_index_creation_dv2 = self.input.param("skip_ds_index_creation_dv2", False)
         self.dataverse_2 = 'dv2'
@@ -49,7 +49,7 @@ class MetadataBackup(CBASBaseTest):
         if not self.skip_ds_index_creation_default:
             self.log.info('Create dataset on %s bucket' % (self.beer_sample_bucket))
             self.cbas_util.create_dataset_on_bucket(self.beer_sample_bucket, self.dataset, compress_dataset=self.compress_dataset)
-            
+
             self.log.info('Create secondary index on %s dataset and %s bucket' % (self.dataset, self.beer_sample_bucket))
             create_idx_statement = 'create index {0} if not exists on {1}({2})'.format(self.index_name, self.dataset, self.index_field_composite)
             status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(create_idx_statement)
@@ -57,11 +57,11 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Create dataverse %s' % self.dataverse_1)
         self.cbas_util.create_dataverse_on_cbas(dataverse_name=self.dataverse_1)
-        
+
         if not self.skip_ds_index_creation_dv1:
             self.log.info('Create dataset on %s dataverse and %s bucket' % (self.dataverse_1, self.beer_sample_bucket))
             self.cbas_util.create_dataset_on_bucket(self.beer_sample_bucket, self.dataset_1, dataverse=self.dataverse_1, compress_dataset=self.compress_dataset)
-    
+
             self.log.info('Create secondary index on %s dataverse, %s dataset and %s bucket' % (self.dataverse_1, self.dataset_1, self.beer_sample_bucket))
             create_idx_statement = 'create index {0} if not exists on {1}({2})'.format(self.index_name_1, self.dataverse_1 + "." + self.dataset_1, self.index_field)
             status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(create_idx_statement)
@@ -69,11 +69,11 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Create dataverse %s' % self.dataverse_2)
         self.cbas_util.create_dataverse_on_cbas(dataverse_name=self.dataverse_2)
-        
+
         if not self.skip_ds_index_creation_dv2:
             self.log.info('Create dataset on %s dataverse and %s bucket' % (self.dataverse_2, self.travel_sample_bucket))
             self.cbas_util.create_dataset_on_bucket(self.travel_sample_bucket, self.dataset_2, dataverse=self.dataverse_2, compress_dataset=self.compress_dataset)
-    
+
             self.log.info('Create secondary index on %s dataverse, %s dataset and %s bucket' % (self.dataverse_2, self.dataset_2, self.travel_sample_bucket))
             create_idx_statement = 'create index {0} if not exists on {1}({2})'.format(self.index_name_2, self.dataverse_2 + "." + self.dataset_2, self.index_field)
             status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(create_idx_statement)
@@ -92,16 +92,16 @@ class MetadataBackup(CBASBaseTest):
         self.build_bucket_status_map()
         if not self.skip_ds_index_creation_default:
             self.assertEquals(self.dataverse_bucket_map[self.dataverse][self.beer_sample_bucket], 'connected', msg='Bucket state is incorrect for %s dataverse' % self.dataverse)
-            
+
             self.log.info('Validate document count on CBAS')
             self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.dataverse + "." + self.dataset, self.beer_sample_docs_count), msg='Count mismatch on CBAS')
-        
+
         if not self.skip_ds_index_creation_dv1:
             self.assertEquals(self.dataverse_bucket_map[self.dataverse_1][self.beer_sample_bucket], 'connected', msg='Bucket state is incorrect for %s dataverse' % self.dataverse_1)
-            
+
             self.log.info('Validate document count on CBAS')
             self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.dataverse_1 + "." + self.dataset_1, self.beer_sample_docs_count), msg='Count mismatch on CBAS')
-            
+
         if not self.skip_ds_index_creation_dv2:
             self.assertEquals(self.dataverse_bucket_map[self.dataverse_2][self.travel_sample_bucket], 'connected', msg='Bucket state is incorrect for %s dataverse' % self.dataverse_2)
 
@@ -140,9 +140,12 @@ class MetadataBackup(CBASBaseTest):
         content = json.loads(content)
         for bucket in content['buckets']:
             curr_dataverse = bucket['dataverse']
-            if curr_dataverse not in self.dataverse_bucket_map:
-                self.dataverse_bucket_map[curr_dataverse] = dict()
-            self.dataverse_bucket_map[curr_dataverse][bucket['name']] = bucket['state']
+            if isinstance(curr_dataverse, str) or isinstance(curr_dataverse, unicode):
+                curr_dataverse = [curr_dataverse]
+            for ds in curr_dataverse:
+                if ds not in self.dataverse_bucket_map:
+                    self.dataverse_bucket_map[ds] = dict()
+                self.dataverse_bucket_map[ds][bucket['name']] = bucket['state']
 
     def test_disabling_analytics_with_cbbackupmgr_backup(self):
 
@@ -214,7 +217,7 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Create additional dataset on Default bucket')
         self.dataset_1_post_backup = self.dataset + "_1"
         self.cbas_util.create_dataset_on_bucket(self.beer_sample_bucket, self.dataset_1_post_backup)
-        
+
         self.log.info('Create secondary index on %s dataset and %s bucket' % (self.dataset_1_post_backup, self.beer_sample_bucket))
         create_idx_statement = 'create index {0} if not exists on {1}({2})'.format(self.index_name, self.dataset_1_post_backup, self.index_field)
         status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(create_idx_statement)
@@ -272,7 +275,7 @@ class MetadataBackup(CBASBaseTest):
         self.assertEqual(self.dataverse_bucket_map[self.dataverse][self.beer_sample_bucket], 'disconnected')
         self.assertEqual(self.dataverse_bucket_map[self.dataverse_1][self.beer_sample_bucket], 'disconnected')
         self.assertEqual(self.dataverse_bucket_map[self.dataverse_2][self.travel_sample_bucket], 'connected')
-        
+
         self.log.info('Verify data is not re-ingested on non-impacted dataset')
         self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.dataverse_2 + "." + self.dataset_2, self.travel_sample_docs_count, num_tries=1), msg='Count mismatch on CBAS')
 
@@ -314,11 +317,11 @@ class MetadataBackup(CBASBaseTest):
         if not self.skip_ds_index_creation_default:
             self.assertEqual(self.dataverse_bucket_map[self.dataverse][self.beer_sample_bucket], 'disconnected')
             self.cbas_util.connect_link()
-        
+
         if not self.skip_ds_index_creation_dv1:
             self.assertEqual(self.dataverse_bucket_map[self.dataverse_1][self.beer_sample_bucket], 'disconnected')
             self.cbas_util.connect_link(link_name=self.dataverse_1 + '.Local')
-            
+
         if not self.skip_ds_index_creation_dv2:
             self.assertEqual(self.dataverse_bucket_map[self.dataverse_2][self.travel_sample_bucket], 'disconnected')
             self.cbas_util.connect_link(link_name=self.dataverse_2 + '.Local')
@@ -414,7 +417,7 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Validate metadata for %s dataverse' % self.dataverse_2)
         self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=1, dataset_count=1, index_count=1)
-    
+
     def test_cbbackupmgr_restore_with_dataverse_already_present(self):
 
         self.log.info('Load documents in KV, create dataverse, datasets, index and validate')
@@ -424,32 +427,32 @@ class MetadataBackup(CBASBaseTest):
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
         self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
-        
+
         for x in range(2):
             self.log.info('Restore Analytics metadata using cbbackupmgr')
             shell = RemoteMachineShellConnection(self.master)
             o = shell.restore_backup(self.cbas_node)
             self.assertTrue('Restore completed successfully' in ''.join(o), msg='Restore was unsuccessful')
-    
+
             self.log.info('Verify bucket state')
             self.build_bucket_status_map()
             self.assertEqual(self.dataverse_bucket_map[self.dataverse][self.beer_sample_bucket], 'disconnected')
             self.assertEqual(self.dataverse_bucket_map[self.dataverse_1][self.beer_sample_bucket], 'disconnected')
             self.assertEqual(self.dataverse_bucket_map[self.dataverse_2][self.travel_sample_bucket], 'disconnected')
-    
+
             self.log.info('Connect to Local link')
             self.cbas_util.connect_link()
-    
+
             self.log.info('Connect to Local link on custom dataverse')
             self.cbas_util.connect_link(link_name=self.dataverse_1 + '.Local')
             self.cbas_util.connect_link(link_name=self.dataverse_2 + '.Local')
-    
+
             self.log.info('Validate metadata for %s dataverse' % self.dataverse)
             self.validate_metadata(self.dataverse, self.dataset, self.index_name, dataverse_count=1, dataset_count=1, index_count=1)
-    
+
             self.log.info('Validate metadata for %s dataverse' % self.dataverse_1)
             self.validate_metadata(self.dataverse_1, self.dataset_1, self.index_name_1, dataverse_count=1, dataset_count=1, index_count=1)
-    
+
             self.log.info('Validate metadata for %s dataverse' % self.dataverse_2)
             self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=1, dataset_count=1, index_count=1)
 
@@ -457,7 +460,7 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Load documents in KV, create dataverse, datasets, index and validate')
         self.create_ds_index_and_validate_count()
-        
+
         self.log.info('Backup Analytics metadata for beer-sample using API')
         successful_bkup_response = self.cbas_util.backup_cbas_metadata(bucket_name=self.beer_sample_bucket)
         self.assertEquals(successful_bkup_response['status'], 'success', msg='Failed to backup analytics metadata')
@@ -468,20 +471,20 @@ class MetadataBackup(CBASBaseTest):
             status, progress = self.rest._rebalance_status_and_progress()
             if status == "running" and progress > 30:
                 break
-        
+
         self.log.info('Verify backup analytics must pass while rebalance is in progress')
         response = self.cbas_util.backup_cbas_metadata(bucket_name=self.beer_sample_bucket)
         self.assertEquals(response['status'], 'success', msg='Backup must pass during rebalance')
-        
+
         self.log.info('Verify restore analytics must fail while rebalance is in progress')
         response = self.cbas_util.restore_cbas_metadata(successful_bkup_response, bucket_name=self.beer_sample_bucket)
         self.assertEquals(response['errors'][0]['msg'], 'Operation cannot be performed during rebalance', msg='Restore must fail during rebalance')
-    
+
     def test_cbbackupmgr_backup_bucket_only_if_user_has_bucket_permission(self):
 
         self.log.info('Load documents in KV, create dataverse, datasets, index and validate')
         self.create_ds_index_and_validate_count()
-        
+
         self.log.info('Create user with backup permission on beer-sample')
         user = 'user_with_bkup_restore_permission_beer_sample'
         self.rbac_util = rbac_utils(self.master)
@@ -522,7 +525,7 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Validate metadata for %s dataverse' % self.dataverse_2)
         self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=1, dataset_count=0, index_count=0)
-    
+
     def test_empty_dataverses_are_imported(self):
 
         self.log.info('Create dataverse\'s')
@@ -550,7 +553,7 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Validate metadata for %s dataverse' % self.dataverse_2)
         self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=1, dataset_count=0, index_count=0)
-    
+
     def test_backup_restore_empty_analytics_metadata(self):
 
         self.log.info('Backup Analytics metadata using cbbackupmgr')
@@ -568,12 +571,12 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Validate metadata for %s dataverse' % self.dataverse)
         self.validate_metadata(self.dataverse, self.dataset, self.index_name, dataverse_count=1, dataset_count=0, index_count=0)
-    
+
     def test_backuprestore_on_node_having_no_analytics_service(self):
-        
+
         self.log.info('Add an extra KV node')
         self.add_node(self.servers[1], rebalance=True)
-        
+
         self.log.info('Load documents in KV, create dataverse, datasets, index and validate')
         self.create_ds_index_and_validate_count()
 
@@ -589,12 +592,12 @@ class MetadataBackup(CBASBaseTest):
         shell = RemoteMachineShellConnection(self.master)
         o = shell.restore_backup(self.servers[1])
         self.assertTrue('Restore completed successfully' in ''.join(o), msg='Restore was unsuccessful')
-    
+
     def test_cbbackupmgr_fail_if_impacted_kv_bucket_is_deleted(self):
 
         self.log.info('Load documents in KV, create dataverse, datasets, index and validate')
         self.create_ds_index_and_validate_count()
-        
+
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
@@ -602,7 +605,7 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
-        
+
         self.log.info('Delete %s bucket on KV' % self.beer_sample_bucket)
         self.delete_bucket_or_assert(self.master, bucket=self.beer_sample_bucket)
 
@@ -610,12 +613,12 @@ class MetadataBackup(CBASBaseTest):
         shell = RemoteMachineShellConnection(self.master)
         o = shell.restore_backup(self.cbas_node)
         self.assertTrue('Error restoring cluster' in ''.join(o), msg='Restore must fail')
-    
+
     def test_cbbackupmgr_does_not_fail_if_non_impacted_kv_bucket_is_deleted(self):
 
         self.log.info('Load documents in KV, create dataverse, datasets, index and validate')
         self.create_ds_index_and_validate_count()
-        
+
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
@@ -623,7 +626,7 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
-        
+
         self.log.info('Delete %s bucket on KV' % self.beer_sample_bucket)
         self.delete_bucket_or_assert(self.master, bucket=self.beer_sample_bucket)
 
@@ -650,7 +653,7 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Connect link Local')
         self.cbas_util.connect_link()
-        
+
         self.log.info("Create primary index")
         query = "CREATE PRIMARY INDEX ON `{0}` using gsi".format(self.beer_sample_bucket)
         self.rest.query_tool(query)
@@ -686,17 +689,17 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
-        
+
         self.log.info('Load documents in KV, create dataverse, datasets, index and validate')
         self.create_ds_index_and_validate_count()
-        
+
         self.log.info('Verify bucket state')
         self.build_bucket_status_map()
 
         self.assertEqual(self.dataverse_bucket_map[self.dataverse][self.beer_sample_bucket], 'connected')
         self.assertEqual(self.dataverse_bucket_map[self.dataverse_1][self.beer_sample_bucket], 'connected')
         self.assertEqual(self.dataverse_bucket_map[self.dataverse_2][self.travel_sample_bucket], 'connected')
-        
+
         self.log.info('Restore Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.restore_backup(self.master)
@@ -712,14 +715,14 @@ class MetadataBackup(CBASBaseTest):
         self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(dataset_name_escape_characters, count_n1ql), msg='Count mismatch on CBAS')
         self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(dataverse_name_escape_characters + "." + dataset_name_escape_characters, self.beer_sample_docs_count),
                         msg='Count mismatch on CBAS')
-        
+
         self.log.info('drop dataset on default dataverse')
         self.cbas_util.drop_dataset(dataset_name_escape_characters)
 
         self.log.info('create a dataset on Default dataverse')
         dataset_name = 'ds'
         self.cbas_util.create_dataset_on_bucket(self.beer_sample_bucket, dataset_name)
-        
+
         self.log.info('Create index on default dataverse')
         create_idx_statement = 'create index {0} if not exists on {1}({2})'.format(self.index_name, dataset_name, self.index_field_composite)
         status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(create_idx_statement)
@@ -733,29 +736,29 @@ class MetadataBackup(CBASBaseTest):
         self.log.info('Validate metadata for %s dataverse' % self.dataverse)
         self.validate_metadata(self.dataverse, dataset_name_escape_characters, index_name_escape_characters, dataverse_count=1, dataset_count=1, index_count=1)
         self.validate_metadata(self.dataverse, dataset_name, self.index_name, dataverse_count=1, dataset_count=1, index_count=1)
-    
+
     def test_cbbackupmgr_while_analytics_node_unreachable(self):
 
         self.log.info('Load documents in KV, create dataverse, datasets, index and validate')
         self.create_ds_index_and_validate_count()
-        
+
         self.log.info('Backup Analytics metadata using cbbackupmgr')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.create_backup(self.master)
         self.assertTrue('Backup completed successfully' in ''.join(o), msg='Backup was unsuccessful')
-        
+
         self.log.info('Drop all analytics data - Dataverses, Datasets, Indexes')
         self.cleanup_cbas()
 
         self.log.info('Shutdown analytics node')
         shell = RemoteMachineShellConnection(self.cbas_node)
         shell.stop_couchbase()
-              
+
         self.log.info('Verify restore metadata fails')
         shell = RemoteMachineShellConnection(self.master)
         o = shell.restore_backup(self.master)
         self.assertTrue('Error restoring cluster' in ''.join(o), msg='Restore must be unsuccessful')
-        
+
         self.log.info('Start back analytics node')
         shell = RemoteMachineShellConnection(self.cbas_node)
         shell.start_couchbase()
@@ -765,7 +768,7 @@ class MetadataBackup(CBASBaseTest):
         shell = RemoteMachineShellConnection(self.master)
         o = shell.restore_backup(self.master)
         self.assertTrue('Restore completed successfully' in ''.join(o), msg='Restore was unsuccessful')
-        
+
         self.log.info('Validate metadata for %s dataverse' % self.dataverse)
         self.validate_metadata(self.dataverse, self.dataset, self.index_name, dataverse_count=1, dataset_count=1, index_count=1)
 
@@ -774,6 +777,6 @@ class MetadataBackup(CBASBaseTest):
 
         self.log.info('Validate metadata for %s dataverse' % self.dataverse_2)
         self.validate_metadata(self.dataverse_2, self.dataset_2, self.index_name_2, dataverse_count=1, dataset_count=1, index_count=1)
-          
+
     def tearDown(self):
         super(MetadataBackup, self).tearDown()
