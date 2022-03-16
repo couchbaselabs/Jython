@@ -15,9 +15,9 @@ class PartialRollback_CBAS(CBASBaseTest):
     def setUp(self):
         self.input = TestInputSingleton.input
         self.input.test_params.update({"default_bucket":False})
-        
+
         super(PartialRollback_CBAS, self).setUp()
-            
+
         ''' Considering all the scenarios where:
         1. There can be 1 KV and multiple cbas nodes(and tests wants to add all cbas into cluster.)
         2. There can be 1 KV and multiple cbas nodes(and tests wants only 1 cbas node)
@@ -26,11 +26,11 @@ class PartialRollback_CBAS(CBASBaseTest):
         '''
         if "add_all_cbas_nodes" in self.input.test_params and self.input.test_params["add_all_cbas_nodes"] and len(self.cbas_servers) > 0:
             self.otpNodes.extend(self.add_all_nodes_then_rebalance(self.cbas_servers))
-        
+
         '''Create default bucket'''
         self.create_default_bucket()
         self.cbas_util.createConn("default")
-        
+
         self.merge_policy = self.input.param('merge_policy', None)
         self.max_mergable_component_size = self.input.param('max_mergable_component_size', 16384)
         self.max_tolerance_component_count = self.input.param('max_tolerance_component_count', 2)
@@ -38,9 +38,9 @@ class PartialRollback_CBAS(CBASBaseTest):
         self.where_field = self.input.param('where_field',None)
         self.where_value = self.input.param('where_value',None)
         self.CC = self.input.param('CC',False)
-        
+
     def setup_for_test(self, skip_data_loading=False):
-        
+
         if not skip_data_loading:
             # Load Couchbase bucket first.
             self.perform_doc_ops_in_all_cb_buckets(self.num_items, "create", 0,
@@ -103,7 +103,7 @@ class PartialRollback_CBAS(CBASBaseTest):
         self.log.info("Performing Mutations")
         self.perform_doc_ops_in_all_cb_buckets(self.num_items/2, "create", self.num_items,
                                                self.num_items*3/2)
-        
+
         kv_nodes = self.get_kv_nodes(self.servers, self.master)
         items_in_cb_bucket = 0
         if self.where_field and self.where_value:
@@ -114,10 +114,10 @@ class PartialRollback_CBAS(CBASBaseTest):
         # Validate no. of items in CBAS dataset
         self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, items_in_cb_bucket, 0),
                         "No. of items in CBAS dataset do not match that in the CB bucket")
-        
+
         # Count no. of items in CB & CBAS Buckets
         items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
-        
+
         self.log.info("Before Rollback --- # docs in CB bucket : %s, # docs in CBAS bucket : %s",
                       items_in_cb_bucket, items_in_cbas_bucket)
 
@@ -136,7 +136,7 @@ class PartialRollback_CBAS(CBASBaseTest):
                 break
         self.assertTrue(items_in_cbas_bucket<=items_before_persistence_stop, "Roll-back did not happen.")
         self.log.info("#######BINGO########\nROLLBACK HAPPENED")
-        
+
         items_in_cb_bucket = 0
         curr = time.time()
         while items_in_cb_bucket != items_in_cbas_bucket:
@@ -151,18 +151,18 @@ class PartialRollback_CBAS(CBASBaseTest):
             else:
                 for node in kv_nodes:
                     items_in_cb_bucket += self.get_item_count(node,self.cb_bucket_name)
-        
+
             self.log.info("Items in CB bucket after rollback: %s"%items_in_cb_bucket)
             items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
             if curr+120 < time.time():
                 break
-            
+
         self.log.info("After Rollback --- # docs in CB bucket : %s, # docs in CBAS bucket : %s",
                       items_in_cb_bucket, items_in_cbas_bucket)
 
         self.assertTrue(items_in_cb_bucket == items_in_cbas_bucket,
                         "After Rollback : # Items in CBAS bucket does not match that in the CB bucket")
-    
+
     def test_ingestion_after_kv_rollback_create_ops_MB29860(self):
         self.setup_for_test()
         items_before_persistence_stop = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)[0]
@@ -177,7 +177,7 @@ class PartialRollback_CBAS(CBASBaseTest):
         self.log.info("Performing Mutations")
         self.perform_doc_ops_in_all_cb_buckets(self.num_items/2, "create", self.num_items,
                                                self.num_items*3/2)
-        
+
         kv_nodes = self.get_kv_nodes(self.servers, self.master)
         items_in_cb_bucket = 0
         if self.where_field and self.where_value:
@@ -188,18 +188,18 @@ class PartialRollback_CBAS(CBASBaseTest):
         # Validate no. of items in CBAS dataset
         self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, items_in_cb_bucket, 0),
                         "No. of items in CBAS dataset do not match that in the CB bucket")
-        
+
         # Count no. of items in CB & CBAS Buckets
         items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
-        
+
         self.log.info("Before Rollback --- # docs in CB bucket : %s, # docs in CBAS bucket : %s",
                       items_in_cb_bucket, items_in_cbas_bucket)
 
         self.assertTrue(items_in_cb_bucket == items_in_cbas_bucket,
                         "Before Rollback : # Items in CBAS bucket does not match that in the CB bucket")
-        
+
         self.cbas_util.disconnect_from_bucket(self.cbas_bucket_name)
-        
+
         # Kill memcached on Node A so that Node B becomes master
         self.log.info("Kill Memcached process on NodeA")
         shell = RemoteMachineShellConnection(self.master)
@@ -208,7 +208,7 @@ class PartialRollback_CBAS(CBASBaseTest):
             shell = RemoteMachineShellConnection(self.cbas_node)
             shell.kill_process("/opt/couchbase/lib/cbas/runtime/bin/java", "java")
             shell.kill_process("/opt/couchbase/bin/cbas", "cbas")
-            
+
         tries = 60
         result = False
         while tries >0 and not result:
@@ -219,7 +219,7 @@ class PartialRollback_CBAS(CBASBaseTest):
                 pass
             self.sleep(2)
         self.assertTrue(result, "CBAS connect bucket failed after memcached killed on KV node.")
-        
+
         self.sleep(2,"Wait for 2 secs for DCP rollback sent to CBAS.")
         curr = time.time()
         while items_in_cbas_bucket != 0 and items_in_cbas_bucket > items_before_persistence_stop:
@@ -228,7 +228,7 @@ class PartialRollback_CBAS(CBASBaseTest):
                 break
         self.assertTrue(items_in_cbas_bucket<=items_before_persistence_stop, "Roll-back did not happen.")
         self.log.info("#######BINGO########\nROLLBACK HAPPENED")
-        
+
         items_in_cb_bucket = 0
         curr = time.time()
         while items_in_cb_bucket != items_in_cbas_bucket:
@@ -243,19 +243,19 @@ class PartialRollback_CBAS(CBASBaseTest):
             else:
                 for node in kv_nodes:
                     items_in_cb_bucket += self.get_item_count(node,self.cb_bucket_name)
-        
+
             self.log.info("Items in CB bucket after rollback: %s"%items_in_cb_bucket)
             items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
             if curr+120 < time.time():
                 break
-            
+
         self.log.info("After Rollback --- # docs in CB bucket : %s, # docs in CBAS bucket : %s",
                       items_in_cb_bucket, items_in_cbas_bucket)
 
         self.assertTrue(items_in_cb_bucket == items_in_cbas_bucket,
                         "After Rollback : # Items in CBAS bucket does not match that in the CB bucket")
-    
-    
+
+
     def test_ingestion_after_kv_rollback_delete_ops(self):
         self.setup_for_test()
         # Stop Persistence on Node A & Node B
@@ -268,7 +268,7 @@ class PartialRollback_CBAS(CBASBaseTest):
         self.log.info("Performing Mutations")
         self.perform_doc_ops_in_all_cb_buckets(self.num_items/2, "delete", 0,
                                                self.num_items / 2)
-        
+
         kv_nodes = self.get_kv_nodes(self.servers, self.master)
         items_in_cb_bucket = 0
         if self.where_field and self.where_value:
@@ -279,7 +279,7 @@ class PartialRollback_CBAS(CBASBaseTest):
         # Validate no. of items in CBAS dataset
         self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, items_in_cb_bucket, 0),
                         "No. of items in CBAS dataset do not match that in the CB bucket")
-        
+
         # Count no. of items in CB & CBAS Buckets
         items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
         items_before_rollback = items_in_cbas_bucket
@@ -301,7 +301,7 @@ class PartialRollback_CBAS(CBASBaseTest):
                 break
         self.assertTrue(items_in_cbas_bucket>items_before_rollback, "Roll-back did not happen.")
         self.log.info("#######BINGO########\nROLLBACK HAPPENED")
-        
+
         items_in_cb_bucket = 0
         curr = time.time()
         while items_in_cb_bucket != items_in_cbas_bucket:
@@ -316,12 +316,12 @@ class PartialRollback_CBAS(CBASBaseTest):
             else:
                 for node in kv_nodes:
                     items_in_cb_bucket += self.get_item_count(node,self.cb_bucket_name)
-        
+
             self.log.info("Items in CB bucket after rollback: %s"%items_in_cb_bucket)
             items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
             if curr+120 < time.time():
                 break
-            
+
         self.log.info("After Rollback --- # docs in CB bucket : %s, # docs in CBAS bucket : %s",
                       items_in_cb_bucket, items_in_cbas_bucket)
 
@@ -336,7 +336,7 @@ class PartialRollback_CBAS(CBASBaseTest):
         mem_client = MemcachedClientHelper.direct_client(self.master,
                                                          self.cb_bucket_name)
         mem_client.stop_persistence()
-        
+
         # Perform Create, Update, Delete ops in the CB bucket
         self.log.info("Performing Mutations")
         self.perform_doc_ops_in_all_cb_buckets(self.num_items/2, "delete", 0,
@@ -347,15 +347,17 @@ class PartialRollback_CBAS(CBASBaseTest):
         items_in_cb_bucket = 0
         for node in kv_nodes:
             items_in_cb_bucket += self.get_item_count(node,self.cb_bucket_name)
-            
-        items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
+
+        items_in_cbas_bucket = 0
+        start_time = time.time()
+        while items_in_cbas_bucket != items_in_cb_bucket and time.time() < \
+                start_time + 300:
+            items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
+
         items_before_rollback = items_in_cbas_bucket
         self.log.info("Before Rollback --- # docs in CB bucket : %s, # docs in CBAS bucket : %s",
                       items_in_cb_bucket, items_in_cbas_bucket)
 
-        self.assertTrue(items_in_cb_bucket == items_in_cbas_bucket,
-                        "Before Rollback : # Items in CBAS bucket does not match that in the CB bucket")
-        
         self.cbas_util.disconnect_from_bucket(self.cbas_bucket_name)
         # Kill memcached on Node A so that Node B becomes master
         self.log.info("Kill Memcached process on NodeA")
@@ -366,7 +368,7 @@ class PartialRollback_CBAS(CBASBaseTest):
             shell = RemoteMachineShellConnection(self.cbas_node)
             shell.kill_process("/opt/couchbase/lib/cbas/runtime/bin/java", "java")
             shell.kill_process("/opt/couchbase/bin/cbas", "cbas")
-            
+
         tries = 60
         result = False
         while tries >0 and not result:
@@ -384,7 +386,7 @@ class PartialRollback_CBAS(CBASBaseTest):
                 break
         self.assertTrue(items_in_cbas_bucket>items_before_rollback, "Roll-back did not happen.")
         self.log.info("#######BINGO########\nROLLBACK HAPPENED")
-                
+
         curr = time.time()
         while items_in_cb_bucket != items_in_cbas_bucket:
             items_in_cb_bucket = 0
@@ -398,15 +400,15 @@ class PartialRollback_CBAS(CBASBaseTest):
             else:
                 for node in kv_nodes:
                     items_in_cb_bucket += self.get_item_count(node,self.cb_bucket_name)
-        
+
             self.log.info("Items in CB bucket after rollback: %s"%items_in_cb_bucket)
             items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
             if curr+120 < time.time():
                 break
-            
+
         # Count no. of items in CB & CBAS Buckets
         items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
-        
+
         self.log.info("After Rollback --- # docs in CB bucket : %s, # docs in CBAS bucket : %s",
                       items_in_cb_bucket, items_in_cbas_bucket)
 
@@ -427,7 +429,7 @@ class PartialRollback_CBAS(CBASBaseTest):
         self.log.info("Performing Mutations")
         self.perform_doc_ops_in_all_cb_buckets(self.num_items/2, "create", self.num_items,
                                                self.num_items*3/2)
-        
+
         kv_nodes = self.get_kv_nodes(self.servers, self.master)
         items_in_cb_bucket = 0
         if self.where_field and self.where_value:
@@ -438,16 +440,16 @@ class PartialRollback_CBAS(CBASBaseTest):
         # Validate no. of items in CBAS dataset
         self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, items_in_cb_bucket, 0),
                         "No. of items in CBAS dataset do not match that in the CB bucket")
-        
+
         # Count no. of items in CB & CBAS Buckets
         items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
-        
+
         self.log.info("Before Rollback --- # docs in CB bucket : %s, # docs in CBAS bucket : %s",
                       items_in_cb_bucket, items_in_cbas_bucket)
 
         self.assertTrue(items_in_cb_bucket == items_in_cbas_bucket,
                         "Before Rollback : # Items in CBAS bucket does not match that in the CB bucket")
-        
+
         if self.CC:
             self.cluster_util.remove_node([self.otpNodes[0]],wait_for_rebalance=False)
             self.cbas_util.closeConn()
@@ -455,7 +457,7 @@ class PartialRollback_CBAS(CBASBaseTest):
             self.cbas_util.createConn("default")
         else:
             self.cluster_util.remove_node([self.otpNodes[1]],wait_for_rebalance=False)
-            
+
         # Kill memcached on Node A so that Node B becomes master
         self.log.info("Kill Memcached process on NodeA")
         shell = RemoteMachineShellConnection(self.master)
@@ -473,7 +475,7 @@ class PartialRollback_CBAS(CBASBaseTest):
                 pass
         self.assertTrue(items_in_cbas_bucket<=items_before_persistence_stop, "Roll-back did not happen.")
         self.log.info("#######BINGO########\nROLLBACK HAPPENED")
-        
+
         items_in_cb_bucket = 0
         curr = time.time()
         while items_in_cb_bucket != items_in_cbas_bucket or items_in_cb_bucket == 0:
@@ -488,7 +490,7 @@ class PartialRollback_CBAS(CBASBaseTest):
             else:
                 for node in kv_nodes:
                     items_in_cb_bucket += self.get_item_count(node,self.cb_bucket_name)
-        
+
             self.log.info("Items in CB bucket after rollback: %s"%items_in_cb_bucket)
             try:
                 items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
@@ -500,10 +502,9 @@ class PartialRollback_CBAS(CBASBaseTest):
         while self.rest._rebalance_progress_status() == "running" and time.time()<str_time+300:
             self.sleep(1)
             self.log.info("Waiting for rebalance to complete")
-            
+
         self.log.info("After Rollback --- # docs in CB bucket : %s, # docs in CBAS bucket : %s",
                       items_in_cb_bucket, items_in_cbas_bucket)
 
         self.assertTrue(items_in_cb_bucket == items_in_cbas_bucket,
                         "After Rollback : # Items in CBAS bucket does not match that in the CB bucket")
-    
