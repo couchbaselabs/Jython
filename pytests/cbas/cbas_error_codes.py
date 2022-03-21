@@ -27,7 +27,7 @@ class CBASErrorValidator(CBASBaseTest):
     def create_dataset_connect_link(self):
         self.log.info("Create dataset on the CBAS")
         self.cbas_util.create_dataset_on_bucket(self.cb_bucket_name, self.cbas_dataset_name)
-        
+
         self.log.info("Connect to Local link")
         self.cbas_util.connect_link()
 
@@ -83,17 +83,17 @@ class CBASErrorValidator(CBASBaseTest):
 
         self.log.info("Create dataset and connect link")
         self.create_dataset_connect_link()
-        
+
         self.log.info("Disconnect Local link")
         self.assertTrue(self.cbas_util.disconnect_from_bucket(), msg="Failed to disconnect connected bucket")
-        
+
         self.log.info("Create a secondary index")
         self.assertTrue(self.cbas_util.execute_statement_on_cbas_util(self.error_response["query"]), msg="Failed to create secondary index")
 
         self.log.info("Execute query and validate error response")
         status, _, errors, _, _ = self.cbas_util.execute_statement_on_cbas_util(self.error_response["query"])
         self.validate_error_response(status, errors, self.error_response["msg"], self.error_response["code"])
-    
+
     """
     test_error_response_index_on_meta_fields,default_bucket=True,cb_bucket_name=default,cbas_bucket_name=cbas,cbas_dataset_name=ds,error_id=index_on_meta_id
     test_error_response_index_on_meta_fields,default_bucket=True,cb_bucket_name=default,cbas_bucket_name=cbas,cbas_dataset_name=ds,error_id=index_on_meta_cas
@@ -103,25 +103,25 @@ class CBASErrorValidator(CBASBaseTest):
 
         self.log.info("Create dataset and connect link")
         self.create_dataset_connect_link()
-        
+
         self.log.info("Disconnect Local link")
         self.assertTrue(self.cbas_util.disconnect_from_bucket(), msg="Failed to disconnect connected bucket")
-        
+
         self.log.info("Create a secondary index")
         self.assertTrue(self.cbas_util.execute_statement_on_cbas_util(self.error_response["query"]), msg="Failed to create secondary index")
 
         self.log.info("Execute query and validate error response")
         status, _, errors, _, _ = self.cbas_util.execute_statement_on_cbas_util(self.error_response["query"])
         self.validate_error_response(status, errors, self.error_response["msg"], self.error_response["code"])
-    
+
     """
     test_error_response_user_permission,default_bucket=True,cb_bucket_name=default,cbas_bucket_name=cbas,cbas_dataset_name=ds,error_id=user_permission
     """
     def test_error_response_user_permission(self):
-        
+
         self.log.info("Create dataset and connect link")
         self.create_dataset_connect_link()
-        
+
         self.log.info("Create a user with analytics reader role")
         rbac_util = rbac_utils(self.master)
         rbac_util._create_user_and_grant_role("reader_admin", "analytics_reader")
@@ -129,30 +129,32 @@ class CBASErrorValidator(CBASBaseTest):
         self.log.info("Execute query and validate error response")
         status, _, errors, _, _ = self.cbas_util.execute_statement_on_cbas_util(self.error_response["query"], username="reader_admin", password="password")
         self.validate_error_response(status, errors, self.error_response["msg"], self.error_response["code"])
-    
+
     """
     test_error_response_user_unauthorized,default_bucket=True,cb_bucket_name=default,cbas_bucket_name=cbas,cbas_dataset_name=ds,error_id=user_unauthorized
     """
     def test_error_response_user_unauthorized(self):
-        
+
         self.log.info("Create dataset and connect link")
         self.create_dataset_connect_link()
-        
+
         self.log.info("Create remote connection and execute cbas query using curl")
-        output, _ = self.shell.execute_command("curl -X POST {0} -u {1}:{2}".format(self.cbas_url, "Administrator", "pass"))
+        output, _ = self.shell.execute_command(
+            "curl -X POST {0} -u {1}:{2} --data-urlencode 'statement=select 1;'".format(
+                self.cbas_url, "Administrator", "pass"))
 
         self.log.info("Execute query and validate error response")
         self.assertTrue(self.error_response["msg"] in str(output), msg="Error message mismatch")
         self.assertTrue(str(self.error_response["code"]) in str(output), msg="Error code mismatch")
-    
+
     """
     test_error_response_connect_link_failed,default_bucket=True,cb_bucket_name=default,cbas_bucket_name=cbas,cbas_dataset_name=ds,error_id=connect_link_fail
     """
     def test_error_response_connect_link_failed(self):
-        
+
         self.log.info("Create dataset and connect link")
         self.create_dataset_connect_link()
-        
+
         self.log.info("Delete KV bucket")
         self.delete_bucket_or_assert(serverInfo=self.master)
 
@@ -179,7 +181,7 @@ class CBASErrorValidator(CBASBaseTest):
         self.log.info("Execute query and validate error response")
         status, _, errors, _, _ = self.cbas_util.execute_statement_on_cbas_util(self.error_response["query"])
         self.validate_error_response(status, errors, self.error_response["msg"], self.error_response["code"])
-    
+
     """
     test_analytics_service_tmp_unavailable,default_bucket=True,cb_bucket_name=default,cbas_bucket_name=cbas,cbas_dataset_name=ds,error_id=service_unavailable
     """
@@ -211,7 +213,7 @@ class CBASErrorValidator(CBASBaseTest):
         self.assertTrue(service_unavailable, msg="Failed to get into the state analytics service is unavailable")
         self.assertTrue(self.error_response["msg"] in str(output), msg="Error message mismatch")
         self.assertTrue(str(self.error_response["code"]) in str(output), msg="Error code mismatch")
-    
+
     """
     test_error_response_rebalance_in_progress,default_bucket=True,cb_bucket_name=default,cbas_bucket_name=cbas,cbas_dataset_name=ds,error_id=rebalance_in_progress,items=10000
     """
@@ -234,20 +236,20 @@ class CBASErrorValidator(CBASBaseTest):
         while time.time() < start_time + 120:
             status, _, errors, _, _ = self.cbas_util.execute_statement_on_cbas_util(self.error_response["query"])
             if errors is not None:
-               break 
+               break
         self.validate_error_response(status, errors, self.error_response["msg"], self.error_response["code"])
 
     """
     test_error_response_using_curl,default_bucket=True,cb_bucket_name=default,cbas_bucket_name=cbas,cbas_dataset_name=ds,error_id=job_requirement
-    """    
+    """
     def test_error_response_using_curl(self):
-        
+
         self.log.info("Create dataset and connect link")
         self.create_dataset_connect_link()
-        
+
         self.log.info("Execute query using CURL")
         output, _ = self.shell.execute_command("curl -X POST {0} -u {1}:{2} -d 'statement={3}'".format(self.cbas_url, "Administrator", "password", self.error_response["query"]))
-            
+
         self.assertTrue(self.error_response["msg"] in str(output), msg="Error message mismatch")
         self.assertTrue(str(self.error_response["code"]) in str(output), msg="Error code mismatch")
 
@@ -388,7 +390,7 @@ class CBASError:
         # Error codes starting with 21xxx
         {
             "id": "invalid_duration",
-            "msg": 'Invalid value for parameter "timeout": tos',
+            "msg": "Invalid value for parameter 'timeout': tos",
             "code": 21008,
             "query": "select sleep(count(*), 2000) from ds",
             "time_out":"to",
@@ -526,9 +528,9 @@ class CBASError:
         },
         {
             "id": "index_on_type",
-            "msg": "Cannot index field [click] on type date. Supported types: bigint, double, string",
+            "msg": "Cannot index field [click] on type float. Supported types: bigint, double, string",
             "code": 24002,
-            "query": "create index idx on ds(click:date)",
+            "query": "create index idx on ds(click:float)",
             "run_in_loop": True
         },
         {
@@ -540,8 +542,8 @@ class CBASError:
         },
         {
             "id": "unsupported_statement",
-            "msg": "Unsupported statement (UPSERT)",
-            "code": 24004,
+            "msg": "Feature supported only in Developer Preview mode",
+            "code": 24122,
             "query": "UPSERT INTO ds (SELECT VALUE name FROM ds)",
             "run_in_loop": True
         },
@@ -561,7 +563,7 @@ class CBASError:
         },
         {
             "id": "duplicate_field",
-            "msg": 'Duplicate field name \"a\"',
+            "msg": "Duplicate field name 'a'",
             "code": 24015,
             "query": 'select 1 as a, 2 as a',
             "run_in_loop": True
