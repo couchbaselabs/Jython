@@ -14,17 +14,17 @@ from membase.api import httplib2
 log = logger.Logger.get_logger()
 
 class CBASHelper(RestConnection):
-    
+
     def __init__(self, master, cbas_node):
         super(CBASHelper, self).__init__(cbas_node)
         self.cbas_base_url = "http://{0}:{1}".format(self.ip, 8095)
 
     def createConn(self, bucket, username, password):
         pass
-    
+
     def closeConn(self):
         pass
-    
+
     def execute_statement_on_cbas(self, statement, mode, pretty=True,
                                   timeout=70, client_context_id=None,
                                   username=None, password=None,analytics_timeout=120, time_out_unit="s",
@@ -41,13 +41,13 @@ class CBASHelper(RestConnection):
 
         if mode is not None:
             params['mode'] = mode
-        
+
         if scan_consistency is not None:
             params['scan_consistency'] = scan_consistency
-            
+
         if scan_wait is not None:
             params['scan_wait'] = scan_wait
-    
+
         params = json.dumps(params)
         status, content, header = self._http_request(api, 'POST',
                                                      headers=headers,
@@ -121,7 +121,7 @@ class CBASHelper(RestConnection):
                 "/analytics/admin/active_requests status:{0},content:{1}".format(
                     status, content))
             raise Exception("Analytics Admin API failed")
-    
+
     def analytics_tool(self, query, port=8095, timeout=650, query_params={}, is_prepared=False, named_prepare=None,
                    verbose = True, encoded_plan=None, servers=None):
         key = 'prepared' if is_prepared else 'statement'
@@ -179,15 +179,15 @@ class CBASHelper(RestConnection):
         if not password:
             password = self.password
         headers = self._create_capi_headers(username, password)
-        
+
         if params is not None:
             api = self.cbas_base_url + "/analytics/cluster/logging"
         else:
             api = self.cbas_base_url + "/analytics/cluster/logging/" + logger_name
-        
-        # In case of SET action we can set logging level of a specific logger and pass log_level as text string in body 
+
+        # In case of SET action we can set logging level of a specific logger and pass log_level as text string in body
         if log_level:
-           params = log_level    
+           params = log_level
 
         status, content, response = self._http_request(api, method=method, params=params, headers=headers,
                                                        timeout=timeout)
@@ -199,7 +199,7 @@ class CBASHelper(RestConnection):
         if not password:
             password = self.password
         headers = self._create_capi_headers(username, password)
-        api = self.cbas_base_url + "/analytics/node/config"
+        api = self.cbas_base_url + "/analytics/config/node"
         status, content, response = self._http_request(api, method=method, params=params, headers=headers)
         return status, content, response
 
@@ -235,7 +235,7 @@ class CBASHelper(RestConnection):
         status, content, response = self._http_request(api, method="GET", headers=headers)
         content = json.loads(content)
         return status, content, response
-    
+
     def operation_service_parameters_configuration_cbas(self, method="GET", params=None, username=None, password=None):
         if not username:
             username = self.username
@@ -246,7 +246,7 @@ class CBASHelper(RestConnection):
         api = cbas_base_url + "/analytics/config/service"
         status, content, response = self._http_request(api, method=method, params=params, headers=headers)
         return status, content, response
-    
+
     def operation_node_parameters_configuration_cbas(self, method="GET", params=None, username=None, password=None):
         if not username:
             username = self.username
@@ -257,7 +257,7 @@ class CBASHelper(RestConnection):
         api = cbas_base_url + "/analytics/config/node"
         status, content, response = self._http_request(api, method=method, params=params, headers=headers)
         return status, content, response
-    
+
     def restart_analytics_cluster_uri(self, username=None, password=None):
         if not username:
             username = self.username
@@ -278,7 +278,7 @@ class CBASHelper(RestConnection):
         api = node_url + "/analytics/node/restart"
         status, content, response = self._http_request(api, method="POST", headers=headers)
         return status, content, response
-    
+
     def fetch_bucket_state_on_cbas(self, method="GET", username=None, password=None):
         if not username:
             username = self.username
@@ -310,7 +310,7 @@ class CBASHelper(RestConnection):
         api = node_url + "/analytics/node/agg/stats/remaining"
         status, content, response = self._http_request(api, method=method, headers=headers)
         return status, content, response
-    
+
     def fetch_dcp_state_on_cbas(self, dataset,  method="GET", dataverse="Default", username=None, password=None):
         if not username:
             username = self.username
