@@ -151,8 +151,8 @@ class DeepComparison(CBASBaseTest):
         self.log.info("Load Beer-Sample bucket")
         self.assertTrue(
             self.load_sample_buckets(
-                servers=[self.master], bucketName=self.cb_bucket_name, 
-                total_items=self.travel_sample_total_docs_count), 
+                servers=[self.master], bucketName=self.cb_bucket_name,
+                total_items=self.travel_sample_total_docs_count),
             msg="Failed to load Travel-Sample, item count mismatch")
 
         self.log.info("Create connection")
@@ -204,8 +204,8 @@ class DeepComparison(CBASBaseTest):
         self.log.info('Load travel-sample bucket')
         self.assertTrue(
             self.load_sample_buckets(
-                servers=[self.master], bucketName=self.cb_bucket_name, 
-                total_items=self.travel_sample_total_docs_count), 
+                servers=[self.master], bucketName=self.cb_bucket_name,
+                total_items=self.travel_sample_total_docs_count),
             msg="Failed to load Travel-Sample, item count mismatch")
 
         self.log.info("Create connection")
@@ -257,8 +257,8 @@ class DeepComparison(CBASBaseTest):
         self.log.info('Load travel-sample bucket')
         self.assertTrue(
             self.load_sample_buckets(
-                servers=[self.master], bucketName=self.cb_bucket_name, 
-                total_items=self.travel_sample_total_docs_count), 
+                servers=[self.master], bucketName=self.cb_bucket_name,
+                total_items=self.travel_sample_total_docs_count),
             msg="Failed to load Travel-Sample, item count mismatch")
 
         self.log.info("Create connection")
@@ -278,6 +278,8 @@ class DeepComparison(CBASBaseTest):
         sql_query = 'SELECT v.geo, COUNT(v) FROM `%s` v GROUP BY v.geo HAVING COUNT(v) > 1 ORDER BY v.geo ASC' % self.cbas_dataset_name
         sql_status, _, _, sql_result, _ = self.cbas_util.execute_statement_on_cbas_util(sql_query)
         self.assertEqual(sql_status, "success", "SQL++ Query %s failed. Actual: %s, Expected:%s" % (sql_query, sql_status, 'success'))
+
+        self.sleep(10)
 
         self.log.info('Execute query on N1QL')
         n1ql_query = 'SELECT v.geo, COUNT(v) FROM `%s` v GROUP BY v.geo HAVING COUNT(v) > 1 ORDER BY v.geo ASC' % self.cb_bucket_name
@@ -326,8 +328,8 @@ class DeepComparison(CBASBaseTest):
         self.log.info('Load travel-sample bucket')
         self.assertTrue(
             self.load_sample_buckets(
-                servers=[self.master], bucketName=self.cb_bucket_name, 
-                total_items=self.travel_sample_total_docs_count), 
+                servers=[self.master], bucketName=self.cb_bucket_name,
+                total_items=self.travel_sample_total_docs_count),
             msg="Failed to load Travel-Sample, item count mismatch")
 
         self.log.info("Create connection")
@@ -393,8 +395,8 @@ class DeepComparison(CBASBaseTest):
         self.log.info('Load travel-sample bucket')
         self.assertTrue(
             self.load_sample_buckets(
-                servers=[self.master], bucketName=self.cb_bucket_name, 
-                total_items=self.travel_sample_total_docs_count), 
+                servers=[self.master], bucketName=self.cb_bucket_name,
+                total_items=self.travel_sample_total_docs_count),
             msg="Failed to load Travel-Sample, item count mismatch")
 
         self.log.info("Create connection")
