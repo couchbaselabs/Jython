@@ -220,6 +220,8 @@ class DeepComparison(CBASBaseTest):
         self.log.info('Verify dataset count')
         self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, self.travel_sample_docs_count)
 
+        self.sleep(10)
+
         self.log.info('Verify sort by record')
         self.log.info('Execute query on SQL++')
         sql_query = 'SELECT VALUE v FROM %s ORDER BY v.geo DESC' % self.cbas_dataset_name
@@ -410,6 +412,8 @@ class DeepComparison(CBASBaseTest):
 
         self.log.info('Verify dataset count')
         self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, self.travel_sample_docs_count)
+
+        self.sleep(10)
 
         self.log.info('Verify distinct on record')
         self.log.info('Execute query on SQL++')

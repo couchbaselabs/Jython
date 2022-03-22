@@ -12,11 +12,13 @@ class LogRedactionTests(CBASBaseTest, LogRedactionBase):
                                     'analytics_warn.log']
         self.user_data_search_keys = ['Administrator', '@cbas-cbauth', '@cbas', 'id like \\"21st_amendment_brewery_cafe%\\"', 'select name from ds limit 1', '21st_amendment_brewery_cafe',
                                       'use dv1', 'SELECT name FROM ds where state=', 'Texas']
-        self.system_metadata_search_keys = [self.cb_bucket_name, self.cbas_node.ip, self.master.ip, 'port:9110', 'port:8095', self.index_name]
-        
+        self.system_metadata_search_keys = [
+            self.cb_bucket_name, self.cbas_node.ip, self.master.ip,
+            'port:8091', 'port:8095', self.index_name]
+
         self.shell = RemoteMachineShellConnection(self.cbas_node)
         self.cbas_url = "http://{0}:{1}/analytics/service".format(self.cbas_node.ip, 8095)
-        
+
         self.log.info('Enable partial redaction')
         self.set_redaction_level()
 
@@ -44,7 +46,7 @@ class LogRedactionTests(CBASBaseTest, LogRedactionBase):
 
         self.log.info('Create dataset')
         self.cbas_util.create_dataset_on_bucket(self.cb_bucket_name, self.cbas_dataset_name)
-        
+
         self.log.info('Create secondary index')
         self.index_field = self.input.param('index_field', 'name:string')
         create_idx_statement = 'create index {0} if not exists on {1}({2})'.format(self.index_name, self.cbas_dataset_name, self.index_field)
@@ -80,30 +82,30 @@ class LogRedactionTests(CBASBaseTest, LogRedactionBase):
     def generate_system_and_metadata(self):
         self.log.info('Add a new analytics node and rebalance')
         self.add_node(self.cbas_servers[0], services=["cbas"], rebalance=True)
-        
+
         self.log.info('Add some user data to backup')
         self.generate_user_data()
-        
+
         self.log.info('Backup analytics metadata for beer-sample')
         response = self.cbas_util.backup_cbas_metadata(bucket_name=self.cb_bucket_name)
         self.assertEquals(response['status'], 'success', msg='Failed to backup analytics metadata')
-        
+
         self.log.info('Restore Analytics metadata for beer-sample using API')
         response = self.cbas_util.restore_cbas_metadata(response, bucket_name=self.cb_bucket_name)
         self.assertEquals(response['status'], 'success', msg='Failed to restore analytics metadata')
-        
+
         self.log.info('Access analytics cluster information')
         self.cbas_util.fetch_analytics_cluster_response(self.shell)
-        
+
         self.log.info('Access analytics cluster configs information')
         self.cbas_util.fetch_service_parameter_configuration_on_cbas()
-        
+
         self.log.info('Access analytics bucket information')
         self.cbas_util.fetch_bucket_state_on_cbas()
-        
+
         self.log.info('Access analytics node diagnostics information')
         self.cbas_util.get_analytics_diagnostics(self.cbas_node)
-        
+
         self.log.info('Fetch analytics stats')
         self.cbas_util.fetch_cbas_stats()
 
@@ -146,7 +148,7 @@ class LogRedactionTests(CBASBaseTest, LogRedactionBase):
 
         self.log.info('Collect logs')
         non_redact_file_name, redact_file_name, remote_path = self.start_log_collection()
-        
+
         self.log.info('Verify redacted log file exist')
         self.verify_log_files_exist(server=self.cbas_node, remotepath=remote_path, redactFileName=redact_file_name, nonredactFileName=non_redact_file_name)
 
@@ -162,9 +164,9 @@ class LogRedactionTests(CBASBaseTest, LogRedactionBase):
             if len(output) > 0:
                 user_data_not_redacted = True
                 self.log.info('`{0}` Occur\'s {1} times in analytics logs'.format(search_key, len(output)))
-        if user_data_not_redacted:    
+        if user_data_not_redacted:
             self.fail(msg='User data is not redacted. Refer above logs for non redacted user data')
-    
+
     def verify_user_errors_are_not_surrounded_by_ud_tags(self):
         user_error_queries = ['select 10000000000000000000', 'SELECT BITAND(3,6) AS BitAND']
         self.log.info('Execute queries that result in errors displayed on workbench UI')
@@ -174,7 +176,7 @@ class LogRedactionTests(CBASBaseTest, LogRedactionBase):
             if errors :
                 self.assertTrue("\<ud\>" not in errors[0]["msg"], msg='User error msg must not be surrounded by ud tags')
 
-        
+
         self.log.info('Check user data is surrounded by ud tags in logs')
         for query in user_error_queries:
             self.check_user_data_in_server_logs(query.replace("(", "\(").replace(")", "\)"), server=self.cbas_node)
@@ -182,10 +184,10 @@ class LogRedactionTests(CBASBaseTest, LogRedactionBase):
     def verify_system_and_metadata_is_not_redacted(self):
         self.log.info('Generate system and metadata')
         self.generate_system_and_metadata()
-        
+
         self.log.info('Collect logs')
         non_redact_file_name, redact_file_name, remote_path = self.start_log_collection()
-        
+
         self.log.info('Verify System/Metadata is not redacted')
         self.set_redacted_directory(server=self.cbas_node, remote_path=remote_path, redact_file_name=redact_file_name, log_file_name="couchbase.log")
         for search_key in self.system_metadata_search_keys:
