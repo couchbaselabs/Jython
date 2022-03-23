@@ -14,7 +14,7 @@ class CBASDCPState(CBASBaseTest):
         self.log.info("Establish remote connection to CBAS node and Empty analytics log")
         self.shell = RemoteMachineShellConnection(self.cbas_node)
         self.shell.execute_command("echo '' > /opt/couchbase/var/lib/couchbase/logs/analytics*.log")
-        
+
         self.log.info("Load documents in the default bucket")
         self.perform_doc_ops_in_all_cb_buckets(self.num_items, "create", 0, self.num_items)
 
@@ -26,13 +26,13 @@ class CBASDCPState(CBASBaseTest):
 
         self.log.info("Add a CBAS nodes")
         self.assertTrue(self.add_node(self.servers[1], services=["cbas"], rebalance=True), msg="Failed to add CBAS node")
-        
+
         self.log.info("Connect to Local link")
         self.cbas_util.connect_link()
 
         self.log.info("Validate count on CBAS")
         self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, self.num_items), msg="Count mismatch on CBAS")
-        
+
         self.log.info("Kill CBAS/JAVA Process on NC node")
         self.shell.kill_multiple_process(['java', 'cbas'])
 
@@ -46,7 +46,7 @@ class CBASDCPState(CBASBaseTest):
         """
         self.log.info("Delete KV bucket")
         self.delete_bucket_or_assert(serverInfo=self.master)
-        
+
         self.log.info("Check DCP state")
         start_time = time.time()
         dcp_state_captured = False
@@ -59,14 +59,14 @@ class CBASDCPState(CBASBaseTest):
                     break
             except:
                 pass
-        
+
         self.log.info("Check DCP state is inconsistent, and rebalance passes since KV bucket does not exist and we don't care about the state")
         self.assertTrue(dcp_state_captured, msg="DCP state not found. Failing the test")
         self.assertFalse(content["exact"], msg="DCP state is consistent. Failing the test since subsequent rebalance will pass.")
-        
+
         self.log.info("Add a CBAS nodes")
         self.assertTrue(self.add_node(self.servers[3], services=["cbas"], rebalance=False), msg="Failed to add CBAS node")
-        
+
         self.log.info("Rebalance in CBAS node")
         rebalance_success = False
         try:
@@ -85,7 +85,7 @@ class CBASDCPState(CBASBaseTest):
         """
         self.log.info("Delete KV bucket")
         self.delete_bucket_or_assert(serverInfo=self.master)
-        
+
         self.log.info("Disconnect from CBAS bucket")
         start_time = time.time()
         while time.time() < start_time + 120:
@@ -94,18 +94,18 @@ class CBASDCPState(CBASBaseTest):
                 break
             except Exception as e:
                 pass
-        
+
         self.log.info("Add a CBAS nodes")
         self.assertTrue(self.add_node(self.servers[3], services=["cbas"], rebalance=False),
                          msg="Failed to add a CBAS node")
-        
+
         self.log.info("Rebalance in CBAS node")
         self.assertTrue(self.rebalance(), msg="Rebalance in CBAS node failed")
-        
+
         self.log.info("Grep Analytics logs for message")
         result, _ = self.shell.execute_command("grep 'exist in KV anymore... nullifying its DCP state' /opt/couchbase/var/lib/couchbase/logs/analytics*.log")
         self.assertTrue("nullifying its DCP state" in result[0], msg="Expected message 'nullifying its DCP state' not found")
-    
+
     """
     test_dcp_state_with_cbas_bucket_disconnected_kv_bucket_deleted_and_recreate,default_bucket=True,cb_bucket_name=default,cbas_dataset_name=ds,items=10000
     """
@@ -116,7 +116,7 @@ class CBASDCPState(CBASBaseTest):
         """
         self.log.info("Delete KV bucket")
         self.delete_bucket_or_assert(serverInfo=self.master)
-        
+
         self.log.info("Disconnect from CBAS bucket")
         start_time = time.time()
         while time.time() < start_time + 120:
@@ -125,33 +125,33 @@ class CBASDCPState(CBASBaseTest):
                 break
             except Exception as e:
                 pass
-        
+
         self.log.info("Add a CBAS nodes")
         self.assertTrue(self.add_node(self.servers[3], services=["cbas"], rebalance=False),
                          msg="Failed to add a CBAS node")
-        
+
         self.log.info("Rebalance in CBAS node")
         self.assertTrue(self.rebalance(), msg="Rebalance in CBAS node failed")
-        
+
         self.log.info("Grep Analytics logs for message")
         result, _ = self.shell.execute_command("grep 'exist in KV anymore... nullifying its DCP state' /opt/couchbase/var/lib/couchbase/logs/analytics*.log")
         self.assertTrue("nullifying its DCP state" in result[0], msg="Expected message 'nullifying its DCP state' not found")
-        
+
         self.log.info("Recreate KV bucket")
         self.create_default_bucket()
-        
+
         self.log.info("Load documents in the default bucket")
         self.perform_doc_ops_in_all_cb_buckets(self.num_items // 100, "create", 0, self.num_items // 100)
 
         self.log.info("Create connection")
         self.cbas_util.createConn(self.cb_bucket_name)
-        
+
         self.log.info("Connect to Local link")
         self.cbas_util.connect_link(with_force=True)
-        
+
         self.log.info("Validate count on CBAS post KV bucket re-created")
         self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, self.num_items // 100), msg="Count mismatch on CBAS")
-          
+
     """
     test_dcp_state_with_cbas_bucket_disconnected_cb_bucket_exist,default_bucket=True,cb_bucket_name=default,cbas_dataset_name=ds,items=10000,user_action=connect_cbas_bucket
     test_dcp_state_with_cbas_bucket_disconnected_cb_bucket_exist,default_bucket=True,cb_bucket_name=default,cbas_dataset_name=ds,items=10000
@@ -169,11 +169,11 @@ class CBASDCPState(CBASBaseTest):
                 break
             except Exception as e:
                 pass
-        
+
         self.log.info("Add a CBAS nodes")
         self.assertTrue(self.add_node(self.servers[3], services=["cbas"], rebalance=False),
                          msg="Failed to add a CBAS node")
-        
+
         self.log.info("Rebalance in CBAS node")
         rebalance_success = False
         try:
@@ -194,13 +194,13 @@ class CBASDCPState(CBASBaseTest):
             else:
                 self.log.info("Dropping the dataset")
                 self.cbas_util.drop_dataset(self.cbas_dataset_name)
-        
+
             self.log.info("Rebalance in CBAS node")
             self.assertTrue(self.rebalance(), msg="Rebalance in CBAS node must succeed after user has taken the specified action.")
         else:
             self.log.info("Rebalance was successful as DCP state were consistent")
 
-          
+
     def tearDown(self):
         super(CBASDCPState, self).tearDown()
 
@@ -236,20 +236,20 @@ class CBASPendingMutations(CBASBaseTest):
                 total_count, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
                 if total_count == self.num_items:
                     break
-                    
+
         self.log.info("Verify remaining mutation count is reducing as ingestion progress's")
         self.log.info(aggregate_remaining_mutations_list)
         is_remaining_mutation_count_reducing = True
-        
+
         for i in range(len(aggregate_remaining_mutations_list)):
-            if aggregate_remaining_mutations_list[i] > self.num_items or aggregate_remaining_mutations_list[i] < 0:
+            if aggregate_remaining_mutations_list[i] > self.num_items:
                 self.fail("Remaining mutation count must not be greater than total documents and must be non -ve")
-                
+
         for i in range(1, len(aggregate_remaining_mutations_list)):
             if not aggregate_remaining_mutations_list[i-1] >= aggregate_remaining_mutations_list[i]:
                 is_remaining_mutation_count_reducing = False
                 break
-        
+
         self.log.info("Assert mutation progress API response")
         """
         In order to make this test less flaky, if the validate_cbas_dataset_items_count is True,
@@ -260,8 +260,8 @@ class CBASPendingMutations(CBASBaseTest):
         validate_count = self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, self.num_items)
         validate_mutation = (len(aggregate_remaining_mutations_list) > 1) or is_remaining_mutation_count_reducing
         self.assertTrue(validate_count and validate_mutation, msg="Count mismatch on CBAS")
-        
-        
+
+
     """
     cbas.cbas_dcp_state.CBASPendingMutations.test_pending_mutations_busy_kv_system,default_bucket=True,cb_bucket_name=default,cbas_bucket_name=cbas,cbas_dataset_name=ds,items=100000
     """
@@ -275,12 +275,12 @@ class CBASPendingMutations(CBASBaseTest):
 
         self.log.info("Connect link")
         self.cbas_util.connect_link()
-        
+
         self.log.info("Perform async doc operations on KV")
         json_generator = JsonGenerator()
         generators = json_generator.generate_docs_simple(docs_per_day=self.num_items * 4, start=self.num_items)
         kv_task = self._async_load_all_buckets(self.master, generators, "create", 0, batch_size=5000)
-        
+
         self.log.info("Fetch cluster remaining mutations")
         aggregate_remaining_mutations_list = []
         while True:
@@ -292,7 +292,7 @@ class CBASPendingMutations(CBASBaseTest):
                 total_count, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
                 if total_count == self.num_items * 4:
                     break
-        
+
         self.log.info("Get KV ops result")
         for task in kv_task:
             task.get_result()
@@ -309,7 +309,7 @@ class CBASPendingMutations(CBASBaseTest):
             if not aggregate_remaining_mutations_list[i-1] >= aggregate_remaining_mutations_list[i]:
                 is_remaining_mutation_count_reducing = False
                 break
-        
+
         self.log.info("Assert mutation progress API response")
         """
         In order to make this test less flaky, if the validate_cbas_dataset_items_count is True,
@@ -320,7 +320,7 @@ class CBASPendingMutations(CBASBaseTest):
         validate_count = self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, self.num_items * 4)
         validate_mutation = (len(aggregate_remaining_mutations_list) > 1) or is_remaining_mutation_count_reducing
         self.assertTrue(validate_count and validate_mutation, msg="Count mismatch on CBAS")
-        
-        
+
+
     def tearDown(self):
         super(CBASPendingMutations, self).tearDown()
