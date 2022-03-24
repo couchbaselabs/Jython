@@ -64,6 +64,7 @@ class CBASDatasetCompression(CBASBaseTest):
         self.assertIsNone(self.cbas_util.get_ds_compression_type("ds1"), "ds1 dataset compression type is not None")
         self.assertEqual(self.cbas_util.get_ds_compression_type("ds2"), "snappy",
                          "ds2 dataset compression type is not snappy")
+        self.sleep(10, "Waiting for dataset compression to finish")
 
         # Fetch storage/stats
         _, results, _ = self.cbas_util.fetch_cbas_storage_stats()

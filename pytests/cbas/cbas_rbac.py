@@ -17,8 +17,8 @@ class CBASRBACTests(CBASBaseTest):
     def test_cbas_rbac(self):
         self.load_sample_buckets(servers=[self.master],
                                  bucketName=self.cb_bucket_name,
-                                 total_items=self.travel_sample_docs_count)
-        
+                                 total_items=self.travel_sample_total_docs_count)
+
         users = [{"username": "analytics_manager1",
                   "roles": "bucket_full_access[travel-sample]:analytics_manager[travel-sample]"},
                  {"username": "analytics_manager2",
@@ -38,161 +38,92 @@ class CBASRBACTests(CBASBaseTest):
                  {"username": "cluster_admin", "roles": "cluster_admin"},
                  {"username": "admin", "roles": "admin"},
                  {"username": "analytics_reader", "roles": "analytics_reader"},
-                 {"username": "analytics_manager", "roles": "analytics_manager[*]"}  
+                 {"username": "analytics_manager", "roles": "analytics_manager[*]"}
                 ]
 
         operation_map = [
-#             {"operation": "create_bucket",
-#              "should_work_for_users": ["analytics_manager1",
-#                                        "analytics_manager4",
-#                                        "admin"
-#                                        ],
-#              "should_not_work_for_users": ["analytics_manager3",
-#                                            "analytics_manager2",
-#                                            "analytics_reader1", 
-#                                            "analytics_reader2",
-#                                            "analytics_reader3",
-#                                            "analytics_reader4",
-#                                            "cluster_admin", 
-# #                                            "ro_admin"
-#                                            ]},
-#             {"operation": "create_dataset",
-#              "should_work_for_users": ["analytics_manager1",
-#                                        "analytics_manager4",
-#                                        "admin"
-#                                        ],
-#              "should_not_work_for_users": ["analytics_manager3",
-#                                            "analytics_manager2",
-#                                            "analytics_reader1", 
-#                                            "analytics_reader2",
-#                                            "analytics_reader3",
-#                                            "analytics_reader4",
-#                                            "cluster_admin", 
-# #                                            "ro_admin"
-#                                            ]},
-#             {"operation": "connect_bucket",
-#              "should_work_for_users": ["analytics_manager1",
-#                                        "analytics_manager4",
-#                                        "admin"
-#                                        ],
-#              "should_not_work_for_users": ["analytics_manager3",
-#                                            "analytics_manager2",
-#                                            "analytics_reader1", 
-#                                            "analytics_reader2",
-#                                            "analytics_reader3",
-#                                            "analytics_reader4",
-#                                            "cluster_admin", 
-# #                                            "ro_admin"
-#                                            ]},
-#             {"operation": "disconnect_bucket",
-#              "should_work_for_users": ["analytics_manager1",
-#                                        "analytics_manager4",
-#                                        "admin"
-#                                        ],
-#              "should_not_work_for_users": ["analytics_manager3",
-#                                            "analytics_manager2",
-#                                            "analytics_reader1", 
-#                                            "analytics_reader2",
-#                                            "analytics_reader3",
-#                                            "analytics_reader4",
-#                                            "cluster_admin", 
-# #                                            "ro_admin"
-#                                            ]},
-            {"operation": "drop_dataset",
-             "should_work_for_users": ["analytics_manager1",
-                                       "analytics_manager4",
-                                       "admin"
-                                       ],
-             "should_not_work_for_users": ["analytics_manager3",
-                                           "analytics_manager2",
-                                           "analytics_reader1", 
-                                           "analytics_reader2",
-                                           "analytics_reader3",
-                                           "analytics_reader4",
-                                           "cluster_admin", 
-#                                            "ro_admin"
-                                           ]},
-#             {"operation": "drop_bucket",
-#              "should_work_for_users": ["analytics_manager1",
-#                                        "analytics_manager4",
-#                                        "admin"
-#                                        ],
-#              "should_not_work_for_users": ["analytics_manager3",
-#                                            "analytics_manager2",
-#                                            "analytics_reader1", 
-#                                            "analytics_reader2",
-#                                            "analytics_reader3",
-#                                            "analytics_reader4",
-#                                            "cluster_admin", 
-# #                                            "ro_admin"
-#                                            ]},
-            {"operation": "create_index",
-             "should_work_for_users": ["analytics_manager1",
-                                       "analytics_manager4",
-                                       "admin"
-                                       ],
-             "should_not_work_for_users": ["analytics_manager3",
-                                           "analytics_manager2",
-                                           "analytics_reader1", 
-                                           "analytics_reader2",
-                                           "analytics_reader3",
-                                           "analytics_reader4",
-                                           "cluster_admin", 
-#                                            "ro_admin"
-                                           ]},
-            {"operation": "drop_index",
-             "should_work_for_users": ["analytics_manager1",
-                                       "analytics_manager4",
-                                       "admin"
-                                       ],
-             "should_not_work_for_users": ["analytics_manager3",
-                                           "analytics_manager2",
-                                           "analytics_reader1", 
-                                           "analytics_reader2",
-                                           "analytics_reader3",
-                                           "analytics_reader4",
-                                           "cluster_admin", 
-#                                            "ro_admin"
-                                           ]},
-            {"operation": "execute_query",
-             "should_work_for_users": ["analytics_manager3",
-                                       "analytics_reader2", 
-#                                        "ro_admin",
-                                       "cluster_admin", 
-                                       "admin"
-                                       ]},
-            {"operation": "execute_metadata_query",
-             "should_work_for_users": ["analytics_manager3",
-                                       "analytics_reader2", 
-#                                        "ro_admin",
-                                       "cluster_admin", 
-                                       "admin"
-                                       ]},
+            {
+                "operation": "drop_dataset",
+                "should_work_for_users":
+                    [
+                        "analytics_manager1", "analytics_manager4",
+                        "analytics_manager3", "analytics_manager2", "admin"
+                    ],
+                "should_not_work_for_users":
+                    [
+                        "analytics_reader1", "analytics_reader2",
+                        "analytics_reader3", "analytics_reader4", "cluster_admin"
+                    ]
+            },
+            {
+                "operation": "create_index",
+                "should_work_for_users":
+                    [
+                        "analytics_manager1", "analytics_manager4",
+                        "analytics_manager3", "analytics_manager2", "admin"
+                    ],
+                "should_not_work_for_users":
+                    [
+                        "analytics_reader1", "analytics_reader2",
+                        "analytics_reader3", "analytics_reader4",
+                        "cluster_admin"
+                    ]
+            },
+            {
+                "operation": "drop_index",
+                "should_work_for_users":
+                    [
+                        "analytics_manager1", "analytics_manager4",
+                        "analytics_manager3", "analytics_manager2", "admin"
+                    ],
+                "should_not_work_for_users":
+                    [
+                        "analytics_reader1", "analytics_reader2",
+                        "analytics_reader3", "analytics_reader4",
+                        "cluster_admin"
+                    ]
+            },
+            {
+                "operation": "execute_query",
+                "should_work_for_users":
+                    [
+                        "analytics_manager3", "analytics_reader2",
+                        "cluster_admin", "admin"
+                    ]
+            },
+            {
+                "operation": "execute_metadata_query",
+                "should_work_for_users":
+                    [
+                        "analytics_manager3", "analytics_reader2",
+                        "cluster_admin", "admin"
+                    ]
+            },
             {
                 "operation": "create_dataverse",
-                "should_work_for_users": [
-                                          "cluster_admin",
-                                          "admin"
-                                          ],
-                "should_not_work_for_users": [
-                                              "analytics_reader",
-                                              "analytics_manager",
-                                              "ro_admin"
-                                              ]
+                "should_work_for_users":
+                    [
+                        "admin"
+                    ],
+                "should_not_work_for_users":
+                    [
+                        "cluster_admin", "analytics_reader",
+                        "analytics_manager", "ro_admin"
+                    ]
             },
             {
                 "operation": "drop_dataverse",
-                "should_work_for_users": [
-                                          "cluster_admin",
-                                          "admin"
-                                          ],
-                "should_not_work_for_users": [
-                                              "analytics_reader",
-                                              "analytics_manager",
-                                              "ro_admin"
-                                              ]
+                "should_work_for_users":
+                    [
+                        "admin"
+                    ],
+                "should_not_work_for_users":
+                    [
+                        "cluster_admin", "analytics_reader",
+                        "analytics_manager", "ro_admin"
+                    ]
             }
-            ]
+        ]
 
         for user in users:
             self.log.info("Creating user %s", user["username"])
@@ -362,16 +293,16 @@ class CBASRBACTests(CBASBaseTest):
                 status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(
                     query_statement, username=username)
                 self.cleanup_cbas()
-            
+
             elif operation == "create_dataverse":
                 status = self.cbas_util.create_dataverse_on_cbas(dataverse_name="Custom", username=username)
                 self.cleanup_cbas()
-            
+
             elif operation == "drop_dataverse":
                 self.cbas_util.create_dataverse_on_cbas(dataverse_name="Custom")
                 status = self.cbas_util.drop_dataverse_on_cbas(dataverse_name="Custom", username=username)
                 self.cleanup_cbas()
-                
+
         self.cbas_util.closeConn()
         return status
 
@@ -399,28 +330,42 @@ class CBASRBACTests(CBASBaseTest):
 
     def test_rest_api_authorization_cbas_cluster_info_api(self):
         validation_failed = False
-        
+
         self.load_sample_buckets(servers=[self.master],
                                  bucketName='travel-sample',
-                                 total_items=self.travel_sample_docs_count)
-         
+                                 total_items=self.travel_sample_total_docs_count)
+
         self.load_sample_buckets(servers=[self.master],
                                  bucketName='beer-sample',
                                  total_items=self.beer_sample_docs_count)
 
-        api_authentication = [{
-            "api_url": "http://{0}:8095/analytics/cluster".format(
-                self.cbas_node.ip),
-            "roles": [{"role": "ro_admin",
-                       "expected_status": 200},
-                      {"role": "cluster_admin",
-                       "expected_status": 200},
-                      {"role": "admin",
-                       "expected_status": 200},
-                      {"role": "analytics_manager[*]",
-                       "expected_status": 401},
-                      {"role": "analytics_reader",
-                       "expected_status": 401}]},
+        api_authentication = [
+            {
+                "api_url": "http://{0}:8095/analytics/cluster".format(self.cbas_node.ip),
+                "roles":
+                    [
+                        {
+                            "role": "ro_admin",
+                            "expected_status": 200
+                        },
+                        {
+                            "role": "cluster_admin",
+                            "expected_status": 200
+                        },
+                        {
+                            "role": "admin",
+                            "expected_status": 200
+                        },
+                        {
+                            "role": "analytics_manager[*]",
+                            "expected_status": 403
+                        },
+                        {
+                            "role": "analytics_reader",
+                            "expected_status": 403
+                        }
+                    ]
+            },
             {
                 "api_url": "http://{0}:8095/analytics/cluster/cc".format(
                     self.cbas_node.ip),
@@ -431,9 +376,9 @@ class CBASRBACTests(CBASBaseTest):
                           {"role": "admin",
                            "expected_status": 200},
                           {"role": "analytics_manager[*]",
-                           "expected_status": 401},
+                           "expected_status": 403},
                           {"role": "analytics_reader",
-                           "expected_status": 401}]},
+                           "expected_status": 403}]},
             {
                 "api_url": "http://{0}:8095/analytics/diagnostics".format(
                     self.cbas_node.ip),
@@ -444,9 +389,9 @@ class CBASRBACTests(CBASBaseTest):
                           {"role": "admin",
                            "expected_status": 200},
                           {"role": "analytics_manager[*]",
-                           "expected_status": 401},
+                           "expected_status": 403},
                           {"role": "analytics_reader",
-                           "expected_status": 401}]},
+                           "expected_status": 403}]},
             {
                 "api_url": "http://{0}:8095/analytics/node/diagnostics".format(
                     self.cbas_node.ip),
@@ -457,37 +402,9 @@ class CBASRBACTests(CBASBaseTest):
                           {"role": "admin",
                            "expected_status": 200},
                           {"role": "analytics_manager[*]",
-                           "expected_status": 401},
+                           "expected_status": 403},
                           {"role": "analytics_reader",
-                           "expected_status": 401}]},
-            {
-                "api_url": "http://{0}:8095/analytics/cc/config".format(
-                    self.cbas_node.ip),
-                "roles": [{"role": "ro_admin",
-                           "expected_status": 401},
-                          {"role": "cluster_admin",
-                           "expected_status": 200},
-                          {"role": "admin",
-                           "expected_status": 200},
-                          {"role": "analytics_manager[*]",
-                           "expected_status": 401},
-                          {"role": "analytics_reader",
-                           "expected_status": 401}]
-            },
-            {
-                "api_url": "http://{0}:8095/analytics/node/config".format(
-                    self.cbas_node.ip),
-                "roles": [{"role": "ro_admin",
-                           "expected_status": 401},
-                          {"role": "cluster_admin",
-                           "expected_status": 200},
-                          {"role": "admin",
-                           "expected_status": 200},
-                          {"role": "analytics_manager[*]",
-                           "expected_status": 401},
-                          {"role": "analytics_reader",
-                           "expected_status": 401}]
-            },
+                           "expected_status": 403}]},
             {
                 "api_url": "http://{0}:9110/analytics/node/agg/stats/remaining".format(self.cbas_node.ip),
                 "roles": [
@@ -502,25 +419,25 @@ class CBASRBACTests(CBASBaseTest):
                     {"role": "data_backup[*], analytics_manager[*]", "expected_status": 200},
                     {"role": "data_backup[travel-sample], analytics_reader", "expected_status": 200},
                     {"role": "data_backup[travel-sample], analytics_manager[travel-sample]", "expected_status": 200},
-                    {"role": "ro_admin", "expected_status": 401},
-                    {"role": "analytics_reader", "expected_status": 401},
-                    {"role": "analytics_manager[*]", "expected_status": 401},
-                    {"role": "data_backup[beer-sample], analytics_reader", "expected_status": 401},
-                    {"role": "data_backup[beer-sample], analytics_manager[*]", "expected_status": 401},
-                    {"role": "data_backup[beer-sample], analytics_manager[beer-sample]", "expected_status": 401},
+                    {"role": "ro_admin", "expected_status": 403},
+                    {"role": "analytics_reader", "expected_status": 403},
+                    {"role": "analytics_manager[*]", "expected_status": 403},
+                    {"role": "data_backup[beer-sample], analytics_reader", "expected_status": 403},
+                    {"role": "data_backup[beer-sample], analytics_manager[*]", "expected_status": 200},
+                    {"role": "data_backup[beer-sample], analytics_manager[beer-sample]", "expected_status": 403},
                 ],
             },
             {
                 "api_url": "http://{0}:8095/analytics/cluster/restart".format(self.cbas_node.ip),
                 "roles": [
                           {"role": "cluster_admin",
-                           "expected_status": 202},
+                           "expected_status": 403},
                           {"role": "admin",
                            "expected_status": 202},
                           {"role": "analytics_manager[*]",
-                           "expected_status": 401},
+                           "expected_status": 403},
                           {"role": "analytics_reader",
-                           "expected_status": 401}],
+                           "expected_status": 403}],
                 "method": "POST"
             },
         ]
@@ -537,7 +454,8 @@ class CBASRBACTests(CBASBaseTest):
                         """curl -i {0} -X {1} -u {2}:{3} 2>/dev/null | head -n 1 | cut -d$' ' -f2""".format(
                             api["api_url"], api["method"], "testuser",
                             "password"))
-                    self.sleep(10)
+                    if not self.cbas_util.wait_for_cbas_to_recover():
+                        self.fail("CBAS failed to come up after restart")
                 else:
                     output, error = shell.execute_command(
                         """curl -i {0} -u {1}:{2} 2>/dev/null | head -n 1 | cut -d$' ' -f2""".format(
