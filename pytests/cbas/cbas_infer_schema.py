@@ -45,12 +45,14 @@ class CBASInferSchema(CBASInferBase):
         status, _, error, _, _ = self.cbas_util.execute_statement_on_cbas_util(
             'SELECT Value array_infer_schema(({"a":1}),{"similarity_metric":0.6})')
         self.assertTrue(status == "fatal", msg='Infer schema works only on array')
-        # Below might fail if this is resolved - MB-33681 
+        # Below might fail if this is resolved - MB-33681
         self.assertTrue("Type mismatch" in error[0]['msg'], msg='Error message mismatch')
         self.assertEqual(error[0]['code'], 23023, msg='Error code mismatch')
 
         self.log.info('Load documents in default bucket')
         self.perform_doc_ops_in_all_cb_buckets(self.num_items, "create", 0, self.num_items, batch_size=200)
+
+        self.sleep(10)
 
         self.log.info('Execute INFER schema on dataset with documents')
         status, _, _, result, _ = self.cbas_util.execute_statement_on_cbas_util(
@@ -150,6 +152,8 @@ class CBASInferSchema(CBASInferBase):
         self.log.info('Load more documents with same json property but different property value type')
         gen_load = self.generate_document_with_type_array_and_object()
         self.perform_doc_ops_in_all_cb_buckets(self.num_items, "create", 0, self.num_items, gen_load=gen_load)
+
+        self.sleep(10)
 
         self.log.info('Create primary index on %s' % self.cb_bucket_name)
         self.rest.query_tool('CREATE PRIMARY INDEX idx on %s' % self.cb_bucket_name)
