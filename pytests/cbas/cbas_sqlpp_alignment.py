@@ -13,7 +13,7 @@ class CBASSQL_Alignment(CBASBaseTest):
         self.input = TestInputSingleton.input
         if "cb_bucket_name" not in self.input.test_params:
             self.input.test_params.update({"default_bucket":False})
-        
+
         super(CBASSQL_Alignment, self).setUp()
         self.validate_error = False
         if self.expected_error:
@@ -32,7 +32,7 @@ class CBASSQL_Alignment(CBASBaseTest):
         self.cbas_util.create_bucket_on_cbas(cbas_bucket_name=self.cbas_bucket_name,
                                    cb_bucket_name="default",
                                    cb_server_ip=self.cb_server_ip)
- 
+
         # Create dataset on the CBAS bucket
         self.cbas_util.create_dataset_on_bucket(
             cbas_bucket_name=self.cb_bucket_name,
@@ -41,10 +41,10 @@ class CBASSQL_Alignment(CBASBaseTest):
         # Connect to Bucket
         self.cbas_util.connect_to_bucket(cbas_bucket_name=self.cbas_bucket_name,
                                cb_bucket_password=self.cb_bucket_password)
- 
+
         # Allow ingestion to complete
         self.cbas_util.wait_for_ingestion_complete([self.cbas_dataset_name], 10, 300)
-        
+
         #load some data to allow incompatible comparisons.
         data_dict = {"name":[123456,[234234,234234],None,{'key':'value'},True,12345.12345],
                  "age":["String", [234234,234234],None,{'key':'value'},True,12345.12345],
@@ -60,10 +60,10 @@ class CBASSQL_Alignment(CBASBaseTest):
                 self.client.set("incompatible_doc_%s"%i, 0, 0, {key:value})
                 i+=1
         self.client.close()
-        
+
     def test_incompatible_types_comparison(self):
         self.setupForTest()
-        
+
         query_string = "SELECT count(*) FROM default_ds where name < 'a';"
         query_integer = "SELECT count(*) FROM default_ds where age > 1;"
         query_bool = "SELECT count(*) FROM default_ds where premium_customer = True;"
@@ -71,9 +71,9 @@ class CBASSQL_Alignment(CBASBaseTest):
         '''Object and array comparisons are out of Vulcan release'''
 #         query_array = "SELECT count(*) FROM default_ds where travel_history = ['India'];"
 #         query_json_object = "SELECT count(*) FROM default_ds where address < 'a';"
-        
+
         queries = [query_string,query_integer,query_bool,query_null]
-        
+
         for query in queries:
             status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(query)
             self.log.info("Query: %s , Result: %s"%(query,results))
@@ -82,19 +82,20 @@ class CBASSQL_Alignment(CBASBaseTest):
 
     def test_incompatible_types_orderBy(self):
         self.setupForTest()
-        
+
+        self.sleep(10)
+
         query_string = "SELECT name FROM default_ds order by name;"
         query_integer = "SELECT age FROM default_ds order by age;"
         query_bool = "SELECT premium_customer FROM default_ds order by premium_customer;"
         query_null = "SELECT premium_customer FROM default_ds order by premium_customer;"
         query_array = "SELECT travel_history FROM default_ds order by travel_history;"
         query_json_object = "SELECT address FROM default_ds order by address;"
-        
+
         queries = [query_string,query_integer,query_bool,query_null,query_array,query_json_object]
-        
+
         for query in queries:
             status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(query)
             self.log.info("Query: %s , Result: %s"%(query,results))
             self.assertTrue(status == "success", "Query failed")
             self.assertTrue(len(results)==38, "Result is incorrect")
-        
